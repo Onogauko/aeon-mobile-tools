@@ -1,0 +1,607 @@
+<!-- Dashboard Page -->
+<div class="dashboard-container">
+    <!-- App Bar -->
+    <header class="app-bar safe-top">
+        <div class="app-bar-left">
+            <span class="material-icons" id="menu-toggle">menu</span>
+            <span class="app-bar-title">AEON Mobile Tools</span>
+        </div>
+        <div class="app-bar-right">
+            <span class="material-icons" id="sync-btn" title="Sync">sync</span>
+            <span class="material-icons" id="notif-btn" title="Notifications">notifications_none</span>
+        </div>
+    </header>
+    
+    <!-- Dashboard Content -->
+    <div class="dashboard-content">
+        <!-- Profile Card -->
+        <div class="profile-card card-hover">
+            <div class="avatar">
+                <span class="material-icons">person</span>
+            </div>
+            <div class="info">
+                <h3 id="user-name">User</h3>
+                <p id="user-id-display">ID: 000001</p>
+                <p id="user-role" class="text-xs text-gray-400"></p>
+            </div>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-2 gap-3 mb-4">
+            <div class="card p-3 text-center">
+                <p class="text-xs text-gray-500 uppercase">Items</p>
+                <p class="text-xl font-bold text-primary" id="total-items">0</p>
+            </div>
+            <div class="card p-3 text-center">
+                <p class="text-xs text-gray-500 uppercase">Favorites</p>
+                <p class="text-xl font-bold text-primary" id="favorite-count">0</p>
+            </div>
+            <div class="card p-3 text-center">
+                <p class="text-xs text-gray-500 uppercase">Today's Scan</p>
+                <p class="text-xl font-bold text-primary" id="today-scans">0</p>
+            </div>
+            <div class="card p-3 text-center">
+                <p class="text-xs text-gray-500 uppercase">DB Size</p>
+                <p class="text-xl font-bold text-primary" id="db-size-display">0 MB</p>
+            </div>
+        </div>
+        
+        <!-- Sync Status -->
+        <div class="card p-4 mb-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-gray-500 uppercase tracking-wider">Sync Status</p>
+                    <p class="text-sm font-medium" id="sync-status-text">Checking...</p>
+                </div>
+                <span class="badge" id="sync-badge">Loading</span>
+            </div>
+            <div class="mt-2 grid grid-cols-3 gap-2 text-center text-xs">
+                <div class="bg-gray-50 p-2 rounded-lg">
+                    <p class="text-gray-500">Database</p>
+                    <p class="font-bold text-gray-700" id="sync-db-status">-</p>
+                </div>
+                <div class="bg-gray-50 p-2 rounded-lg">
+                    <p class="text-gray-500">Last Download</p>
+                    <p class="font-bold text-gray-700 text-xs" id="sync-last-download">-</p>
+                </div>
+                <div class="bg-gray-50 p-2 rounded-lg">
+                    <p class="text-gray-500">Server</p>
+                    <p class="font-bold text-gray-700" id="sync-server-status">-</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Server Status Card -->
+        <div class="card p-4 mb-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-gray-500 uppercase tracking-wider">Server Status</p>
+                    <p class="text-sm font-medium" id="server-status-text">Checking...</p>
+                </div>
+                <span class="badge" id="server-badge">Loading</span>
+            </div>
+            <div class="mt-2 text-xs text-gray-500" id="server-info">
+                <span id="server-ip-display">IP: -</span>
+                <span class="mx-2">|</span>
+                <span id="store-name-display">Store: -</span>
+                <span class="mx-2">|</span>
+                <span id="last-sync-display">Last Sync: Never</span>
+            </div>
+        </div>
+        
+        <!-- Master Data Status Card -->
+        <div class="card p-4 mb-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-gray-500 uppercase tracking-wider">Master Data</p>
+                    <p class="text-sm font-medium" id="master-status">Checking...</p>
+                </div>
+                <span class="badge" id="master-badge">Loading</span>
+            </div>
+            <div class="mt-3 grid grid-cols-4 gap-2 text-center text-xs">
+                <div class="bg-gray-50 p-2 rounded-lg">
+                    <p class="text-gray-500">Users</p>
+                    <p class="font-bold text-gray-700" id="user-count">-</p>
+                </div>
+                <div class="bg-gray-50 p-2 rounded-lg">
+                    <p class="text-gray-500">Items</p>
+                    <p class="font-bold text-gray-700" id="item-count">-</p>
+                </div>
+                <div class="bg-gray-50 p-2 rounded-lg">
+                    <p class="text-gray-500">DB Size</p>
+                    <p class="font-bold text-gray-700 text-xs" id="db-size-small">-</p>
+                </div>
+                <div class="bg-gray-50 p-2 rounded-lg">
+                    <p class="text-gray-500">Downloads</p>
+                    <p class="font-bold text-gray-700 text-xs" id="download-count-display">0</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Menu Grid -->
+        <div class="dashboard-grid">
+            <button class="dashboard-menu-item menu-card" data-route="/price-checker">
+                <div class="icon-wrapper">
+                    <span class="material-icons">price_check</span>
+                </div>
+                <div class="label">Price Checker</div>
+                <div class="desc">Check product prices</div>
+            </button>
+            
+            <button class="dashboard-menu-item menu-card" data-route="/download">
+                <div class="icon-wrapper">
+                    <span class="material-icons">cloud_download</span>
+                </div>
+                <div class="label">Download Master</div>
+                <div class="desc">Download master data</div>
+            </button>
+            
+            <button class="dashboard-menu-item menu-card" data-route="/settings">
+                <div class="icon-wrapper">
+                    <span class="material-icons">settings</span>
+                </div>
+                <div class="label">Settings</div>
+                <div class="desc">App settings</div>
+            </button>
+            
+            <button class="dashboard-menu-item menu-card" data-route="/history">
+                <div class="icon-wrapper">
+                    <span class="material-icons">history</span>
+                </div>
+                <div class="label">History</div>
+                <div class="desc">Activity history</div>
+            </button>
+            
+            <button class="dashboard-menu-item menu-card" data-route="/about">
+                <div class="icon-wrapper">
+                    <span class="material-icons">info</span>
+                </div>
+                <div class="label">About</div>
+                <div class="desc">About this app</div>
+            </button>
+        </div>
+        
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-label">Status</div>
+                <div class="status-value" id="status-value">
+                    <span class="status-dot offline" id="status-dot"></span>
+                    <span id="status-text">Offline</span>
+                </div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Database</div>
+                <div class="status-value" id="db-size">0 MB</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Last Sync</div>
+                <div class="status-value" id="last-sync">Never</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Downloads</div>
+                <div class="status-value" id="download-count">0</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-avatar">
+                <span class="material-icons">person</span>
+            </div>
+            <div class="sidebar-username" id="sidebar-username">User</div>
+            <div class="sidebar-userid" id="sidebar-userid">ID: 000001</div>
+        </div>
+        
+        <div class="sidebar-menu">
+            <button class="sidebar-menu-item active" data-route="/dashboard">
+                <span class="material-icons">dashboard</span>
+                Dashboard
+            </button>
+            <button class="sidebar-menu-item" data-route="/price-checker">
+                <span class="material-icons">price_check</span>
+                Price Checker
+            </button>
+            <button class="sidebar-menu-item" data-route="/download">
+                <span class="material-icons">cloud_download</span>
+                Download Master
+            </button>
+            <button class="sidebar-menu-item" data-route="/settings">
+                <span class="material-icons">settings</span>
+                Settings
+            </button>
+            <button class="sidebar-menu-item" data-route="/history">
+                <span class="material-icons">history</span>
+                History
+            </button>
+            <button class="sidebar-menu-item" data-route="/about">
+                <span class="material-icons">info</span>
+                About
+            </button>
+            <button class="sidebar-menu-item logout" id="logout-btn">
+                <span class="material-icons">logout</span>
+                Logout
+            </button>
+        </div>
+    </nav>
+</div>
+
+<script type="module">
+    import { authService } from '../js/services/AuthService.js';
+    import { router } from '../js/router.js';
+    import { showToast } from '../js/ui.js';
+    import { logger } from '../js/core/Logger.js';
+    import { eventBus, Events } from '../js/core/EventBus.js';
+    import { downloadService } from '../js/services/DownloadService.js';
+    import { articleRepository } from '../js/repository/ArticleRepository.js';
+    import { userRepository } from '../js/repository/UserRepository.js';
+    import { favoriteRepository } from '../js/repository/FavoriteRepository.js';
+    import { settingRepository } from '../js/repository/SettingRepository.js';
+    import { historyRepository } from '../js/repository/HistoryRepository.js';
+    import { priceCheckerService } from '../js/services/PriceCheckerService.js';
+    
+    const log = logger.child('DashboardPage');
+    
+    if (!authService.isLoggedIn()) {
+        log.warning('User not logged in, redirecting to login');
+        router.navigate('/login');
+        return;
+    }
+    
+    const user = authService.currentUser();
+    
+    if (user) {
+        document.getElementById('user-name').textContent = user.name || user.username || user.user_id || 'User';
+        document.getElementById('user-id-display').textContent = `ID: ${user.user_id || user.userId || user.username || 'Unknown'}`;
+        document.getElementById('sidebar-username').textContent = user.name || user.username || user.user_id || 'User';
+        document.getElementById('sidebar-userid').textContent = `ID: ${user.user_id || user.userId || user.username || 'Unknown'}`;
+        if (user.role) {
+            document.getElementById('user-role').textContent = `Role: ${user.role}`;
+        }
+    }
+    
+    // ============================================
+    // DASHBOARD STATS
+    // ============================================
+    
+    async function updateDashboardStats() {
+        try {
+            const userCount = await userRepository.count();
+            const itemCount = await articleRepository.count();
+            const favoriteCount = await favoriteRepository.count();
+            const lastDownload = await settingRepository.getLastDownload();
+            const downloadCount = await settingRepository.getDownloadCount();
+            const stats = await downloadService.getDownloadStats();
+            const dbSize = stats?.databaseSize || '0.00';
+            
+            document.getElementById('total-items').textContent = itemCount || 0;
+            document.getElementById('favorite-count').textContent = favoriteCount || 0;
+            document.getElementById('db-size-display').textContent = `${dbSize} MB`;
+            document.getElementById('db-size-small').textContent = `${dbSize} MB`;
+            document.getElementById('download-count-display').textContent = downloadCount || 0;
+            
+            const scans = await historyRepository.getByAction('price_check');
+            const today = new Date().toDateString();
+            const todayScans = scans.filter(s => new Date(s.timestamp).toDateString() === today);
+            document.getElementById('today-scans').textContent = todayScans.length || 0;
+            
+            document.getElementById('user-count').textContent = userCount > 0 ? userCount : '0';
+            document.getElementById('item-count').textContent = itemCount > 0 ? itemCount : '0';
+            
+            if (lastDownload) {
+                const date = new Date(lastDownload);
+                document.getElementById('last-sync-date').textContent = date.toLocaleDateString('id-ID');
+                document.getElementById('last-sync').textContent = date.toLocaleString('id-ID');
+                document.getElementById('last-sync-display').textContent = `Last Sync: ${date.toLocaleString('id-ID')}`;
+            } else {
+                document.getElementById('last-sync-date').textContent = 'Never';
+                document.getElementById('last-sync').textContent = 'Never';
+                document.getElementById('last-sync-display').textContent = 'Last Sync: Never';
+            }
+            
+            document.getElementById('download-count').textContent = downloadCount || 0;
+            
+            const masterStatus = document.getElementById('master-status');
+            const masterBadge = document.getElementById('master-badge');
+            
+            if (itemCount > 0 && userCount > 0) {
+                masterStatus.textContent = 'Ready';
+                masterStatus.className = 'text-sm font-medium text-green-600';
+                masterBadge.textContent = '✓ Ready';
+                masterBadge.className = 'badge badge-success';
+            } else if (itemCount > 0 || userCount > 0) {
+                masterStatus.textContent = 'Partial';
+                masterStatus.className = 'text-sm font-medium text-yellow-600';
+                masterBadge.textContent = '⚠️ Partial';
+                masterBadge.className = 'badge badge-warning';
+            } else {
+                masterStatus.textContent = 'Not Available';
+                masterStatus.className = 'text-sm font-medium text-red-600';
+                masterBadge.textContent = '✗ Not Available';
+                masterBadge.className = 'badge badge-danger';
+            }
+            
+            const totalRecords = userCount + itemCount;
+            const dbSizeDisplay = totalRecords > 0 ? (totalRecords * 0.1).toFixed(1) : '0.0';
+            document.getElementById('db-size').textContent = dbSizeDisplay > 0 ? `${dbSizeDisplay} MB` : '0 MB';
+            
+            log.debug('Dashboard stats updated', { userCount, itemCount, favoriteCount, totalRecords });
+            
+        } catch (error) {
+            log.error('Error updating dashboard stats:', error);
+        }
+    }
+    
+    // ============================================
+    // SYNC STATUS
+    // ============================================
+    
+    async function updateSyncStatus() {
+        try {
+            const hasData = await priceCheckerService.hasProductData();
+            const lastDownload = await settingRepository.getLastDownload();
+            const serverIP = await settingRepository.getServerIP();
+            const itemCount = await articleRepository.count();
+            
+            const syncStatusText = document.getElementById('sync-status-text');
+            const syncBadge = document.getElementById('sync-badge');
+            const syncDbStatus = document.getElementById('sync-db-status');
+            const syncLastDownload = document.getElementById('sync-last-download');
+            const syncServerStatus = document.getElementById('sync-server-status');
+            
+            // Database status
+            if (hasData) {
+                syncDbStatus.textContent = `✓ Ready (${itemCount} items)`;
+                syncDbStatus.className = 'font-bold text-green-700 text-xs';
+            } else {
+                syncDbStatus.textContent = '⚠ Not Ready';
+                syncDbStatus.className = 'font-bold text-yellow-700 text-xs';
+            }
+            
+            // Last download
+            if (lastDownload) {
+                const date = new Date(lastDownload);
+                syncLastDownload.textContent = date.toLocaleDateString('id-ID') + ' ' + date.toLocaleTimeString('id-ID', {hour:'2-digit',minute:'2-digit'});
+            } else {
+                syncLastDownload.textContent = 'Never';
+            }
+            
+            // Server status
+            if (serverIP) {
+                const result = await downloadService.checkServerConnection();
+                if (result.connected) {
+                    syncServerStatus.textContent = '✓ Online';
+                    syncServerStatus.className = 'font-bold text-green-700';
+                } else {
+                    syncServerStatus.textContent = '✗ Offline';
+                    syncServerStatus.className = 'font-bold text-red-700';
+                }
+            } else {
+                syncServerStatus.textContent = '⚠ Not Set';
+                syncServerStatus.className = 'font-bold text-yellow-700';
+            }
+            
+            // Overall status
+            if (hasData && serverIP) {
+                syncStatusText.textContent = 'Ready';
+                syncStatusText.className = 'text-sm font-medium text-green-600';
+                syncBadge.textContent = '✓ Synced';
+                syncBadge.className = 'badge badge-success';
+            } else if (hasData) {
+                syncStatusText.textContent = 'Partial';
+                syncStatusText.className = 'text-sm font-medium text-yellow-600';
+                syncBadge.textContent = '⚠ Partial';
+                syncBadge.className = 'badge badge-warning';
+            } else {
+                syncStatusText.textContent = 'Not Ready';
+                syncStatusText.className = 'text-sm font-medium text-red-600';
+                syncBadge.textContent = '✗ Not Ready';
+                syncBadge.className = 'badge badge-danger';
+            }
+            
+        } catch (error) {
+            log.error('Error updating sync status:', error);
+        }
+    }
+    
+    // ============================================
+    // SERVER STATUS
+    // ============================================
+    
+    async function updateServerStatus() {
+        try {
+            const serverIP = await settingRepository.getServerIP();
+            const serverStatusText = document.getElementById('server-status-text');
+            const serverBadge = document.getElementById('server-badge');
+            const serverIpDisplay = document.getElementById('server-ip-display');
+            const storeNameDisplay = document.getElementById('store-name-display');
+            
+            if (!serverIP) {
+                serverStatusText.textContent = 'Not Configured';
+                serverStatusText.className = 'text-sm font-medium text-gray-500';
+                serverBadge.textContent = '⚙️ Configure';
+                serverBadge.className = 'badge badge-warning';
+                serverIpDisplay.textContent = 'IP: Not set';
+                storeNameDisplay.textContent = 'Store: -';
+                return;
+            }
+            
+            serverIpDisplay.textContent = `IP: ${serverIP}`;
+            
+            const result = await downloadService.checkServerConnection();
+            
+            if (result.connected) {
+                serverStatusText.textContent = 'Online';
+                serverStatusText.className = 'text-sm font-medium text-green-600';
+                serverBadge.textContent = '✓ Online';
+                serverBadge.className = 'badge badge-success';
+                
+                if (result.data) {
+                    storeNameDisplay.textContent = `Store: ${result.data.store_name || result.data.name || '-'}`;
+                }
+            } else {
+                serverStatusText.textContent = 'Offline';
+                serverStatusText.className = 'text-sm font-medium text-red-600';
+                serverBadge.textContent = '✗ Offline';
+                serverBadge.className = 'badge badge-danger';
+                storeNameDisplay.textContent = 'Store: -';
+            }
+        } catch (error) {
+            log.error('Error updating server status:', error);
+        }
+    }
+    
+    // ============================================
+    // SIDEBAR CONTROLS
+    // ============================================
+    
+    const menuToggle = document.getElementById('menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    
+    function openSidebar() {
+        sidebar.classList.add('open');
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeSidebar() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+    
+    menuToggle.addEventListener('click', openSidebar);
+    overlay.addEventListener('click', closeSidebar);
+    
+    document.querySelectorAll('.sidebar-menu-item[data-route]').forEach(item => {
+        item.addEventListener('click', () => {
+            const route = item.dataset.route;
+            closeSidebar();
+            router.navigate(route);
+        });
+    });
+    
+    document.querySelectorAll('.menu-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const route = card.dataset.route;
+            router.navigate(route);
+        });
+    });
+    
+    // ============================================
+    // LOGOUT
+    // ============================================
+    
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+        if (confirm('Are you sure you want to logout?')) {
+            authService.logout();
+            showToast('Logged out successfully', 'info');
+            router.navigate('/login');
+        }
+    });
+    
+    // ============================================
+    // SYNC BUTTON
+    // ============================================
+    
+    document.getElementById('sync-btn').addEventListener('click', () => {
+        showToast('Syncing data...', 'info');
+        setTimeout(() => {
+            const now = new Date();
+            document.getElementById('last-sync').textContent = now.toLocaleString('id-ID');
+            document.getElementById('status-text').textContent = 'Online';
+            document.getElementById('status-dot').className = 'status-dot online';
+            updateDashboardStats();
+            updateSyncStatus();
+            showToast('Sync completed successfully!', 'success');
+        }, 1500);
+    });
+    
+    document.getElementById('notif-btn').addEventListener('click', () => {
+        showToast('No new notifications', 'info');
+    });
+    
+    // ============================================
+    // ONLINE / OFFLINE STATUS
+    // ============================================
+    
+    function updateStatus() {
+        const isOnline = navigator.onLine;
+        const statusText = document.getElementById('status-text');
+        const statusDot = document.getElementById('status-dot');
+        
+        if (isOnline) {
+            statusText.textContent = 'Online';
+            statusDot.className = 'status-dot online';
+        } else {
+            statusText.textContent = 'Offline';
+            statusDot.className = 'status-dot offline';
+        }
+    }
+    
+    window.addEventListener('online', updateStatus);
+    window.addEventListener('offline', updateStatus);
+    updateStatus();
+    
+    // ============================================
+    // EVENTBUS LISTENERS
+    // ============================================
+    
+    eventBus.on('scan:recorded', () => {
+        updateDashboardStats();
+        updateSyncStatus();
+    });
+    
+    eventBus.on('favorite:added', () => {
+        updateDashboardStats();
+    });
+    eventBus.on('favorite:removed', () => {
+        updateDashboardStats();
+    });
+    
+    eventBus.on(Events.DATA_SYNCED, () => {
+        log.info('Data synced event received, updating dashboard');
+        updateDashboardStats();
+        updateSyncStatus();
+        updateServerStatus();
+    });
+    
+    eventBus.on(Events.DOWNLOAD_COMPLETED, (data) => {
+        log.info('Download completed event received', data);
+        updateDashboardStats();
+        updateSyncStatus();
+    });
+    
+    eventBus.on(Events.SETTINGS_CHANGED, (data) => {
+        log.debug('Settings changed:', data);
+        updateSyncStatus();
+        updateServerStatus();
+    });
+    
+    eventBus.on('session:restored', (data) => {
+        log.info('Session restored:', data);
+    });
+    
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    
+    await updateDashboardStats();
+    await updateSyncStatus();
+    await updateServerStatus();
+    
+    setInterval(() => {
+        updateDashboardStats();
+        updateSyncStatus();
+    }, 30000);
+    
+    setInterval(() => {
+        updateServerStatus();
+    }, 60000);
+</script>

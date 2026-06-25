@@ -1,0 +1,1008 @@
+<!-- Price Checker Page -->
+<div class="min-h-screen bg-gray-50">
+    <!-- App Bar -->
+    <header class="app-bar safe-top">
+        <div class="app-bar-left">
+            <span class="material-icons" onclick="window.router.goBack()">arrow_back</span>
+            <span class="app-bar-title">Price Checker</span>
+        </div>
+        <div class="app-bar-right">
+            <span class="material-icons" id="clear-history-btn" title="Clear History">delete_sweep</span>
+        </div>
+    </header>
+    
+    <!-- Content -->
+    <div class="p-4 max-w-md mx-auto">
+        <!-- Search Card -->
+        <div class="card p-4 mb-4">
+            <div class="input-group" style="position:relative;">
+                <span class="material-icons" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#999;">search</span>
+                <input 
+                    type="text" 
+                    class="input-field" 
+                    style="padding-left:44px;"
+                    placeholder="Search by Barcode, SKU, or Description..." 
+                    id="product-search"
+                    autocomplete="off"
+                />
+                <!-- Auto Complete Suggestions -->
+                <div id="autocomplete-suggestions" class="hidden absolute left-0 right-0 top-full mt-1 bg-white rounded-xl shadow-lg z-50 max-h-48 overflow-y-auto" style="display:none;"></div>
+            </div>
+            <div class="flex gap-2 mt-3 flex-wrap">
+                <button class="btn btn-primary flex-1" id="search-btn">
+                    <span class="material-icons">search</span>
+                    Search
+                </button>
+                <button class="btn btn-secondary" id="clear-btn">
+                    <span class="material-icons">close</span>
+                    Clear
+                </button>
+                <button class="btn btn-secondary" id="scan-btn" title="Scan Barcode">
+                    <span class="material-icons">qr_code_scanner</span>
+                </button>
+                <button class="btn btn-secondary" id="continuous-toggle" title="Continuous Scan">
+                    <span class="material-icons" id="continuous-icon">repeat</span>
+                </button>
+            </div>
+            <div class="mt-2 text-xs text-gray-500" id="scan-mode-indicator">Mode: Manual</div>
+        </div>
+        
+        <!-- Scanner Container -->
+        <div id="scanner-container" class="hidden">
+            <div class="card p-4 relative">
+                <div id="scanner-view" class="w-full aspect-square bg-black rounded-lg overflow-hidden relative">
+                    <!-- Target Guide -->
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div class="w-48 h-48 border-2 border-white/50 rounded-lg relative">
+                            <div class="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-white/80"></div>
+                            <div class="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-white/80"></div>
+                            <div class="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-white/80"></div>
+                            <div class="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-white/80"></div>
+                            <!-- Scan Animation -->
+                            <div class="absolute left-0 right-0 top-0 h-1 bg-red-500/80" id="scan-animation" style="animation: scanMove 2s ease-in-out infinite;"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Scanner Controls -->
+                <div class="flex justify-center gap-2 mt-4 flex-wrap">
+                    <button class="btn btn-secondary btn-sm" id="scanner-stop-btn">
+                        <span class="material-icons text-sm">stop</span>
+                        Stop
+                    </button>
+                    <button class="btn btn-secondary btn-sm" id="scanner-torch-btn">
+                        <span class="material-icons text-sm">flashlight_on</span>
+                        Torch
+                    </button>
+                    <button class="btn btn-secondary btn-sm" id="scanner-switch-btn">
+                        <span class="material-icons text-sm">cameraswitch</span>
+                        Switch
+                    </button>
+                    <button class="btn btn-secondary btn-sm" id="scanner-zoom-in">
+                        <span class="material-icons text-sm">zoom_in</span>
+                    </button>
+                    <button class="btn btn-secondary btn-sm" id="scanner-zoom-out">
+                        <span class="material-icons text-sm">zoom_out</span>
+                    </button>
+                </div>
+                <div class="text-center text-xs text-gray-500 mt-2" id="scanner-status">
+                    Scanning... Point camera at barcode
+                </div>
+            </div>
+        </div>
+        
+        <!-- Loading Indicator -->
+        <div id="loading-indicator" class="hidden">
+            <div class="card p-8 text-center">
+                <div class="spinner mx-auto"></div>
+                <p class="text-gray-600 mt-4">Searching products...</p>
+            </div>
+        </div>
+        
+        <!-- Product Result -->
+        <div id="product-result" class="hidden">
+            <div class="card p-4">
+                <!-- Product Card -->
+                <div id="product-card" class="hidden">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h3 class="font-medium text-gray-800 text-lg" id="product-name">Product Name</h3>
+                            <p class="text-sm text-gray-500" id="product-sku">SKU: -</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button class="text-gray-400 hover:text-red-500 transition-colors" id="favorite-btn" title="Add to Favorite">
+                                <span class="material-icons" id="favorite-icon">favorite_border</span>
+                            </button>
+                            <span class="badge badge-success" id="product-status">Available</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Price Badges -->
+                    <div class="flex gap-2 mt-2 flex-wrap" id="price-badges">
+                        <span class="badge badge-primary hidden" id="badge-normal">NORMAL</span>
+                        <span class="badge badge-warning hidden" id="badge-promo">PROMO</span>
+                        <span class="badge badge-danger hidden" id="badge-outdate">OUT OF DATE</span>
+                        <span class="badge badge-info hidden" id="badge-new">NEW ITEM</span>
+                    </div>
+                    
+                    <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
+                        <div class="bg-gray-50 p-2 rounded-lg">
+                            <p class="text-gray-500 text-xs">Barcode</p>
+                            <p class="font-medium text-gray-700" id="product-barcode">-</p>
+                        </div>
+                        <div class="bg-gray-50 p-2 rounded-lg">
+                            <p class="text-gray-500 text-xs">Department</p>
+                            <p class="font-medium text-gray-700" id="product-department">-</p>
+                        </div>
+                        <div class="bg-gray-50 p-2 rounded-lg">
+                            <p class="text-gray-500 text-xs">Section</p>
+                            <p class="font-medium text-gray-700" id="product-section">-</p>
+                        </div>
+                        <div class="bg-gray-50 p-2 rounded-lg">
+                            <p class="text-gray-500 text-xs">Supplier</p>
+                            <p class="font-medium text-gray-700" id="product-supplier">-</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 grid grid-cols-2 gap-3">
+                        <div class="bg-green-50 p-3 rounded-lg text-center">
+                            <p class="text-gray-500 text-xs">Normal Price</p>
+                            <p class="text-lg font-bold text-green-700" id="product-normal-price">Rp 0</p>
+                        </div>
+                        <div class="bg-red-50 p-3 rounded-lg text-center">
+                            <p class="text-gray-500 text-xs">Promo Price</p>
+                            <p class="text-lg font-bold text-red-700" id="product-promo-price">Rp 0</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3 text-xs text-gray-400 text-right" id="product-last-update">
+                        Last Update: -
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="mt-4 flex gap-2">
+                        <button class="btn btn-secondary flex-1" id="add-history-btn">
+                            <span class="material-icons">history</span>
+                            Add History
+                        </button>
+                        <button class="btn btn-primary flex-1" id="scan-again-btn">
+                            <span class="material-icons">qr_code_scanner</span>
+                            Scan Again
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Multiple Results -->
+                <div id="multiple-results" class="hidden">
+                    <h4 class="font-medium text-gray-700 mb-3">Multiple products found</h4>
+                    <div class="space-y-2" id="results-list">
+                        <!-- Results will be rendered here -->
+                    </div>
+                </div>
+                
+                <!-- Not Found -->
+                <div id="not-found" class="hidden text-center py-8">
+                    <span class="material-icons text-6xl text-gray-300">search_off</span>
+                    <h3 class="text-lg font-medium text-gray-600 mt-4">Item Not Found</h3>
+                    <p class="text-sm text-gray-400 mt-2">Please synchronize master data.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Scans -->
+        <div class="mt-6" id="recent-scans">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="font-medium text-gray-700">Recent Scans</h3>
+                <button class="text-xs text-primary font-medium" id="clear-recent-scans">Clear All</button>
+            </div>
+            <div class="card divide-y divide-gray-100" id="recent-scans-list">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Recent Searches -->
+        <div class="mt-6" id="recent-searches">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="font-medium text-gray-700">Recent Searches</h3>
+                <button class="text-xs text-primary font-medium" id="clear-recent-btn">Clear All</button>
+            </div>
+            <div class="card divide-y divide-gray-100" id="recent-list">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- No Data Warning -->
+        <div id="no-data-warning" class="mt-4 hidden">
+            <div class="card p-4 text-center bg-yellow-50 border border-yellow-200">
+                <span class="material-icons text-yellow-600 text-3xl">warning</span>
+                <p class="text-sm text-gray-600 mt-2">No product data found. Please download master data first.</p>
+                <button class="btn btn-primary mt-3" onclick="window.router.navigate('/download')">
+                    <span class="material-icons">cloud_download</span>
+                    Go to Download
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes scanMove {
+    0% { top: 0; }
+    50% { top: calc(100% - 4px); }
+    100% { top: 0; }
+}
+</style>
+
+<script type="module">
+    import { showToast, confirmDialog } from '../js/ui.js';
+    import { router } from '../js/router.js';
+    import { priceCheckerService } from '../js/services/PriceCheckerService.js';
+    import { favoriteService } from '../js/services/FavoriteService.js';
+    import { scanner } from '../js/scanner.js';
+    import { eventBus, Events } from '../js/core/EventBus.js';
+    import { logger } from '../js/core/Logger.js';
+    import { settingsService } from '../js/services/SettingsService.js';
+    import { historyRepository } from '../js/repository/HistoryRepository.js';
+    
+    const log = logger.child('PriceCheckerPage');
+    
+    // DOM elements
+    const searchInput = document.getElementById('product-search');
+    const searchBtn = document.getElementById('search-btn');
+    const clearBtn = document.getElementById('clear-btn');
+    const scanBtn = document.getElementById('scan-btn');
+    const continuousToggle = document.getElementById('continuous-toggle');
+    const continuousIcon = document.getElementById('continuous-icon');
+    const scanModeIndicator = document.getElementById('scan-mode-indicator');
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const productResult = document.getElementById('product-result');
+    const productCard = document.getElementById('product-card');
+    const multipleResults = document.getElementById('multiple-results');
+    const notFound = document.getElementById('not-found');
+    const resultsList = document.getElementById('results-list');
+    const recentList = document.getElementById('recent-list');
+    const recentScansList = document.getElementById('recent-scans-list');
+    const clearRecentBtn = document.getElementById('clear-recent-btn');
+    const clearRecentScans = document.getElementById('clear-recent-scans');
+    const noDataWarning = document.getElementById('no-data-warning');
+    const clearHistoryBtn = document.getElementById('clear-history-btn');
+    const favoriteBtn = document.getElementById('favorite-btn');
+    const favoriteIcon = document.getElementById('favorite-icon');
+    const scanAgainBtn = document.getElementById('scan-again-btn');
+    const addHistoryBtn = document.getElementById('add-history-btn');
+    const autocompleteSuggestions = document.getElementById('autocomplete-suggestions');
+    
+    // Scanner elements
+    const scannerContainer = document.getElementById('scanner-container');
+    const scannerView = document.getElementById('scanner-view');
+    const scannerStatus = document.getElementById('scanner-status');
+    const scannerStopBtn = document.getElementById('scanner-stop-btn');
+    const scannerTorchBtn = document.getElementById('scanner-torch-btn');
+    const scannerSwitchBtn = document.getElementById('scanner-switch-btn');
+    const scannerZoomIn = document.getElementById('scanner-zoom-in');
+    const scannerZoomOut = document.getElementById('scanner-zoom-out');
+    
+    // Product detail elements
+    const productName = document.getElementById('product-name');
+    const productSku = document.getElementById('product-sku');
+    const productBarcode = document.getElementById('product-barcode');
+    const productDepartment = document.getElementById('product-department');
+    const productSection = document.getElementById('product-section');
+    const productSupplier = document.getElementById('product-supplier');
+    const productNormalPrice = document.getElementById('product-normal-price');
+    const productPromoPrice = document.getElementById('product-promo-price');
+    const productLastUpdate = document.getElementById('product-last-update');
+    const productStatus = document.getElementById('product-status');
+    const badgeNormal = document.getElementById('badge-normal');
+    const badgePromo = document.getElementById('badge-promo');
+    const badgeOutdate = document.getElementById('badge-outdate');
+    const badgeNew = document.getElementById('badge-new');
+    
+    let isSearching = false;
+    let isScanning = false;
+    let currentProduct = null;
+    let isContinuousMode = false;
+    let recentScansData = [];
+    let zoomLevel = 50;
+    
+    // ============================================
+    // UTILITY FUNCTIONS
+    // ============================================
+    
+    function formatCurrency(value) {
+        if (!value) return 'Rp 0';
+        const num = parseFloat(value);
+        if (isNaN(num)) return 'Rp 0';
+        return 'Rp ' + num.toLocaleString('id-ID');
+    }
+    
+    function formatDate(dateString) {
+        if (!dateString) return '-';
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return '-';
+            return date.toLocaleDateString('id-ID', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        } catch (error) {
+            return '-';
+        }
+    }
+    
+    function formatTime(dateString) {
+        if (!dateString) return '-';
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return '-';
+            return date.toLocaleTimeString('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        } catch (error) {
+            return '-';
+        }
+    }
+    
+    // ============================================
+    // DISPLAY FUNCTIONS
+    // ============================================
+    
+    function displayProduct(product) {
+        productCard.classList.remove('hidden');
+        multipleResults.classList.add('hidden');
+        notFound.classList.add('hidden');
+        currentProduct = product;
+        
+        productName.textContent = product.name || product.item_description || 'Unknown Product';
+        productSku.textContent = `SKU: ${product.sku || product.article_code || '-'}`;
+        productBarcode.textContent = product.barcode || '-';
+        productDepartment.textContent = product.department || '-';
+        productSection.textContent = product.section || '-';
+        productSupplier.textContent = product.supplier || '-';
+        productNormalPrice.textContent = formatCurrency(product.normal_price || product.price || 0);
+        productPromoPrice.textContent = formatCurrency(product.promo_price || 0);
+        productLastUpdate.textContent = `Last Update: ${formatDate(product.synced_at || product.updated_at)}`;
+        productStatus.textContent = 'Available';
+        productStatus.className = 'badge badge-success';
+        
+        // Price badges
+        badgeNormal.classList.add('hidden');
+        badgePromo.classList.add('hidden');
+        badgeOutdate.classList.add('hidden');
+        badgeNew.classList.add('hidden');
+        
+        if (product.normal_price) badgeNormal.classList.remove('hidden');
+        if (product.promo_price && product.promo_price > 0) badgePromo.classList.remove('hidden');
+        if (product.is_outdated) badgeOutdate.classList.remove('hidden');
+        if (product.is_new) badgeNew.classList.remove('hidden');
+        
+        // Check favorite
+        updateFavoriteButton(product);
+        
+        productResult.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    async function updateFavoriteButton(product) {
+        const id = product.barcode || product.sku || product.article_code;
+        const isFav = await favoriteService.isFavorite(id);
+        if (isFav) {
+            favoriteIcon.textContent = 'favorite';
+            favoriteIcon.className = 'material-icons text-red-500';
+        } else {
+            favoriteIcon.textContent = 'favorite_border';
+            favoriteIcon.className = 'material-icons text-gray-400';
+        }
+    }
+    
+    function displayMultipleProducts(products) {
+        productCard.classList.add('hidden');
+        multipleResults.classList.remove('hidden');
+        notFound.classList.add('hidden');
+        
+        resultsList.innerHTML = products.slice(0, 10).map(product => `
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer" 
+                 data-product='${JSON.stringify(product)}'>
+                <div class="flex-1">
+                    <p class="font-medium text-sm text-gray-800">${product.name || product.item_description || 'Unknown'}</p>
+                    <p class="text-xs text-gray-500">SKU: ${product.sku || product.article_code || '-'}</p>
+                </div>
+                <div class="text-right">
+                    <p class="font-medium text-primary">${formatCurrency(product.normal_price || product.price || 0)}</p>
+                    <p class="text-xs text-gray-500">${product.barcode || '-'}</p>
+                </div>
+            </div>
+        `).join('');
+        
+        resultsList.querySelectorAll('[data-product]').forEach(el => {
+            el.addEventListener('click', () => {
+                const product = JSON.parse(el.dataset.product);
+                displayProduct(product);
+                multipleResults.classList.add('hidden');
+                productCard.classList.remove('hidden');
+            });
+        });
+    }
+    
+    function displayNotFound() {
+        productCard.classList.add('hidden');
+        multipleResults.classList.add('hidden');
+        notFound.classList.remove('hidden');
+    }
+    
+    // ============================================
+    // AUTO COMPLETE
+    // ============================================
+    
+    async function showAutocomplete(query) {
+        if (!query || query.length < 2) {
+            autocompleteSuggestions.classList.add('hidden');
+            autocompleteSuggestions.style.display = 'none';
+            return;
+        }
+        
+        try {
+            const result = await priceCheckerService.search(query);
+            let suggestions = [];
+            
+            if (result.type === 'single') {
+                suggestions = [result.data];
+            } else if (result.type === 'multiple') {
+                suggestions = result.data.slice(0, 5);
+            }
+            
+            if (suggestions.length === 0) {
+                autocompleteSuggestions.classList.add('hidden');
+                autocompleteSuggestions.style.display = 'none';
+                return;
+            }
+            
+            autocompleteSuggestions.innerHTML = suggestions.map(product => `
+                <div class="px-4 py-2 hover:bg-gray-50 cursor-pointer text-sm border-b border-gray-100 last:border-0" data-product='${JSON.stringify(product)}'>
+                    <p class="font-medium text-gray-800">${product.name || product.item_description || 'Unknown'}</p>
+                    <p class="text-xs text-gray-500">${product.sku || product.article_code || '-'} | ${product.barcode || '-'}</p>
+                </div>
+            `).join('');
+            
+            autocompleteSuggestions.classList.remove('hidden');
+            autocompleteSuggestions.style.display = 'block';
+            
+            autocompleteSuggestions.querySelectorAll('[data-product]').forEach(el => {
+                el.addEventListener('click', () => {
+                    const product = JSON.parse(el.dataset.product);
+                    searchInput.value = product.sku || product.article_code || product.barcode || '';
+                    autocompleteSuggestions.classList.add('hidden');
+                    autocompleteSuggestions.style.display = 'none';
+                    performSearch(searchInput.value);
+                });
+            });
+        } catch (error) {
+            log.error('Autocomplete error:', error);
+        }
+    }
+    
+    // ============================================
+    // SEARCH FUNCTIONS
+    // ============================================
+    
+    async function performSearch(query, isScan = false) {
+        if (isSearching) return;
+        if (!query || query.trim() === '') {
+            showToast('Please enter a search term', 'warning');
+            return;
+        }
+        
+        const hasData = await priceCheckerService.hasProductData();
+        if (!hasData) {
+            showToast('No product data found. Please download master data first.', 'warning');
+            noDataWarning.classList.remove('hidden');
+            return;
+        }
+        noDataWarning.classList.add('hidden');
+        
+        isSearching = true;
+        searchBtn.disabled = true;
+        loadingIndicator.classList.remove('hidden');
+        productResult.classList.add('hidden');
+        autocompleteSuggestions.classList.add('hidden');
+        autocompleteSuggestions.style.display = 'none';
+        
+        try {
+            const result = await priceCheckerService.search(query);
+            
+            loadingIndicator.classList.add('hidden');
+            productResult.classList.remove('hidden');
+            
+            if (!result || result.type === 'none') {
+                displayNotFound();
+                if (!isScan) {
+                    showToast('No results found', 'info');
+                }
+                return;
+            }
+            
+            if (result.type === 'single') {
+                displayProduct(result.data);
+                showToast('Product found!', 'success');
+            } else if (result.type === 'multiple') {
+                if (result.data.length === 1) {
+                    displayProduct(result.data[0]);
+                    showToast('Product found!', 'success');
+                } else {
+                    displayMultipleProducts(result.data);
+                    showToast(`${result.data.length} products found`, 'info');
+                }
+            }
+            
+            renderRecentSearches();
+            
+        } catch (error) {
+            log.error('Search error:', error);
+            loadingIndicator.classList.add('hidden');
+            productResult.classList.add('hidden');
+            showToast('Error searching: ' + error.message, 'error');
+        } finally {
+            isSearching = false;
+            searchBtn.disabled = false;
+        }
+    }
+    
+    // ============================================
+    // RECENT SCANS
+    // ============================================
+    
+    function addRecentScan(barcode, product) {
+        const scan = {
+            id: Date.now(),
+            barcode: barcode,
+            sku: product?.sku || product?.article_code || '-',
+            name: product?.name || product?.item_description || 'Unknown',
+            timestamp: new Date().toISOString()
+        };
+        
+        recentScansData = recentScansData.filter(s => s.barcode !== barcode);
+        recentScansData.unshift(scan);
+        
+        if (recentScansData.length > 20) {
+            recentScansData.pop();
+        }
+        
+        localStorage.setItem('aeon_recent_scans', JSON.stringify(recentScansData));
+        renderRecentScans();
+    }
+    
+    function renderRecentScans() {
+        const data = localStorage.getItem('aeon_recent_scans');
+        if (data) {
+            recentScansData = JSON.parse(data);
+        }
+        
+        if (recentScansData.length === 0) {
+            recentScansList.innerHTML = `
+                <div class="text-center py-6 text-gray-400">
+                    <span class="material-icons text-3xl">qr_code_scanner</span>
+                    <p class="text-sm mt-1">No recent scans</p>
+                </div>
+            `;
+            return;
+        }
+        
+        recentScansList.innerHTML = recentScansData.map(item => `
+            <div class="flex items-center justify-between p-3 hover:bg-gray-50 transition-colors cursor-pointer" 
+                 data-barcode="${item.barcode}">
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-700">${item.name}</p>
+                    <p class="text-xs text-gray-500">${item.barcode} | SKU: ${item.sku}</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs text-gray-400">${formatTime(item.timestamp)}</p>
+                    <button class="text-gray-400 hover:text-red-500 text-xs" data-id="${item.id}">✕</button>
+                </div>
+            </div>
+        `).join('');
+        
+        recentScansList.querySelectorAll('[data-barcode]').forEach(el => {
+            el.addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON') return;
+                const barcode = el.dataset.barcode;
+                searchInput.value = barcode;
+                performSearch(barcode);
+            });
+        });
+        
+        recentScansList.querySelectorAll('[data-id]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.dataset.id);
+                recentScansData = recentScansData.filter(s => s.id !== id);
+                localStorage.setItem('aeon_recent_scans', JSON.stringify(recentScansData));
+                renderRecentScans();
+                showToast('Scan removed', 'info');
+            });
+        });
+    }
+    
+    // ============================================
+    // RECENT SEARCHES
+    // ============================================
+    
+    function renderRecentSearches() {
+        const searches = priceCheckerService.getRecentSearches();
+        
+        if (searches.length === 0) {
+            recentList.innerHTML = `
+                <div class="text-center py-6 text-gray-400">
+                    <span class="material-icons text-3xl">history</span>
+                    <p class="text-sm mt-1">No recent searches</p>
+                </div>
+            `;
+            return;
+        }
+        
+        recentList.innerHTML = searches.map((item, index) => `
+            <div class="flex items-center justify-between p-3 hover:bg-gray-50 transition-colors cursor-pointer" 
+                 data-query="${item.query}">
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-700">${item.query}</p>
+                    ${item.result ? `
+                        <p class="text-xs text-gray-500">${item.result.name || 'Unknown'} - ${formatCurrency(item.result.price)}</p>
+                    ` : `
+                        <p class="text-xs text-gray-400">No result</p>
+                    `}
+                </div>
+                <div class="text-right">
+                    <p class="text-xs text-gray-400">${new Date(item.timestamp).toLocaleDateString()}</p>
+                    <button class="text-gray-400 hover:text-red-500 text-xs" data-index="${index}">✕</button>
+                </div>
+            </div>
+        `).join('');
+        
+        recentList.querySelectorAll('[data-query]').forEach(el => {
+            el.addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON') return;
+                const query = el.dataset.query;
+                searchInput.value = query;
+                performSearch(query);
+            });
+        });
+        
+        recentList.querySelectorAll('[data-index]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const index = parseInt(btn.dataset.index);
+                const searches = priceCheckerService.getRecentSearches();
+                searches.splice(index, 1);
+                localStorage.setItem('aeon_recent_searches', JSON.stringify(searches));
+                renderRecentSearches();
+                showToast('Search removed', 'info');
+            });
+        });
+    }
+    
+    // ============================================
+    // SCANNER FUNCTIONS
+    // ============================================
+    
+    async function startScanner() {
+        if (isScanning) {
+            showToast('Scanner already running', 'info');
+            return;
+        }
+        
+        try {
+            const support = await scanner.checkCameraSupport();
+            if (!support.supported) {
+                showToast('Camera not supported on this device', 'error');
+                return;
+            }
+            
+            isContinuousMode = await settingsService.getContinuousScan();
+            updateContinuousUI();
+            
+            scannerContainer.classList.remove('hidden');
+            scannerView.id = 'scanner-view';
+            
+            await scanner.init('scanner-view');
+            await scanner.start({
+                fps: 15,
+                qrbox: { width: 250, height: 250 },
+                continuousMode: isContinuousMode
+            });
+            
+            isScanning = true;
+            scanBtn.innerHTML = '<span class="material-icons">qr_code_scanner</span> Scanning...';
+            scanBtn.classList.add('btn-primary');
+            scanBtn.classList.remove('btn-secondary');
+            scannerStatus.textContent = isContinuousMode ? 'Continuous Scan: Scanning...' : 'Scanning... Point camera at barcode';
+            
+            showToast('Scanner started', 'success');
+            log.info('Scanner started from UI');
+            
+        } catch (error) {
+            log.error('Failed to start scanner:', error);
+            showToast('Failed to start scanner: ' + error.message, 'error');
+            stopScanner();
+        }
+    }
+    
+    async function stopScanner() {
+        try {
+            await scanner.stop();
+            isScanning = false;
+            scannerContainer.classList.add('hidden');
+            scanBtn.innerHTML = '<span class="material-icons">qr_code_scanner</span>';
+            scanBtn.classList.remove('btn-primary');
+            scanBtn.classList.add('btn-secondary');
+            scannerStatus.textContent = '';
+            log.info('Scanner stopped from UI');
+        } catch (error) {
+            log.error('Failed to stop scanner:', error);
+        }
+    }
+    
+    async function toggleTorch() {
+        try {
+            const enabled = await scanner.toggleTorch();
+            showToast(enabled ? 'Torch on' : 'Torch off', 'info');
+            scannerTorchBtn.innerHTML = enabled 
+                ? '<span class="material-icons text-sm">flashlight_on</span> Torch'
+                : '<span class="material-icons text-sm">flashlight_off</span> Torch';
+        } catch (error) {
+            showToast('Torch not available', 'warning');
+        }
+    }
+    
+    async function switchCamera() {
+        try {
+            const camera = await scanner.switchCamera();
+            const label = camera === 'environment' ? 'Rear' : 'Front';
+            showToast(`Switched to ${label} camera`, 'info');
+        } catch (error) {
+            showToast('Failed to switch camera', 'error');
+        }
+    }
+    
+    async function toggleContinuousMode() {
+        isContinuousMode = !isContinuousMode;
+        await settingsService.setContinuousScan(isContinuousMode);
+        
+        if (isScanning) {
+            await stopScanner();
+            await startScanner();
+        }
+        
+        updateContinuousUI();
+        showToast(isContinuousMode ? 'Continuous Scan ON' : 'Continuous Scan OFF', 'info');
+        log.info(`Continuous mode toggled to: ${isContinuousMode}`);
+    }
+    
+    function updateContinuousUI() {
+        if (isContinuousMode) {
+            continuousIcon.textContent = 'repeat_one';
+            continuousIcon.className = 'material-icons text-primary';
+            scanModeIndicator.textContent = 'Mode: Continuous Scan';
+            scanModeIndicator.className = 'mt-2 text-xs text-primary font-medium';
+        } else {
+            continuousIcon.textContent = 'repeat';
+            continuousIcon.className = 'material-icons text-gray-500';
+            scanModeIndicator.textContent = 'Mode: Manual';
+            scanModeIndicator.className = 'mt-2 text-xs text-gray-500';
+        }
+    }
+    
+    async function handleZoomIn() {
+        zoomLevel = Math.min(zoomLevel + 10, 100);
+        await scanner.setZoom(zoomLevel);
+        showToast(`Zoom: ${zoomLevel}%`, 'info');
+    }
+    
+    async function handleZoomOut() {
+        zoomLevel = Math.max(zoomLevel - 10, 0);
+        await scanner.setZoom(zoomLevel);
+        showToast(`Zoom: ${zoomLevel}%`, 'info');
+    }
+    
+    // ============================================
+    // EVENT LISTENERS
+    // ============================================
+    
+    searchBtn.addEventListener('click', () => {
+        performSearch(searchInput.value);
+    });
+    
+    searchInput.addEventListener('input', (e) => {
+        showAutocomplete(e.target.value);
+    });
+    
+    searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            autocompleteSuggestions.classList.add('hidden');
+            autocompleteSuggestions.style.display = 'none';
+            performSearch(searchInput.value);
+        }
+        if (e.key === 'Escape') {
+            autocompleteSuggestions.classList.add('hidden');
+            autocompleteSuggestions.style.display = 'none';
+        }
+    });
+    
+    // Click outside to close autocomplete
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.input-group')) {
+            autocompleteSuggestions.classList.add('hidden');
+            autocompleteSuggestions.style.display = 'none';
+        }
+    });
+    
+    clearBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        productResult.classList.add('hidden');
+        autocompleteSuggestions.classList.add('hidden');
+        autocompleteSuggestions.style.display = 'none';
+        searchInput.focus();
+    });
+    
+    scanBtn.addEventListener('click', () => {
+        if (isScanning) {
+            stopScanner();
+        } else {
+            startScanner();
+        }
+    });
+    
+    continuousToggle.addEventListener('click', toggleContinuousMode);
+    scannerStopBtn.addEventListener('click', stopScanner);
+    scannerTorchBtn.addEventListener('click', toggleTorch);
+    scannerSwitchBtn.addEventListener('click', switchCamera);
+    scannerZoomIn.addEventListener('click', handleZoomIn);
+    scannerZoomOut.addEventListener('click', handleZoomOut);
+    
+    clearRecentBtn.addEventListener('click', () => {
+        if (confirm('Clear all recent searches?')) {
+            priceCheckerService.clearRecentSearches();
+            renderRecentSearches();
+            showToast('Recent searches cleared', 'info');
+        }
+    });
+    
+    clearRecentScans.addEventListener('click', () => {
+        if (confirm('Clear all recent scans?')) {
+            recentScansData = [];
+            localStorage.setItem('aeon_recent_scans', JSON.stringify(recentScansData));
+            renderRecentScans();
+            showToast('Recent scans cleared', 'info');
+        }
+    });
+    
+    clearHistoryBtn.addEventListener('click', async () => {
+        const confirmed = await confirmDialog('Clear History', 'Clear all history?', 'Yes', 'No');
+        if (confirmed) {
+            await historyRepository.clearAll();
+            showToast('History cleared', 'info');
+        }
+    });
+    
+    favoriteBtn.addEventListener('click', async () => {
+        if (!currentProduct) return;
+        
+        const result = await favoriteService.toggleFavorite(currentProduct);
+        await updateFavoriteButton(currentProduct);
+        showToast(result.action === 'added' ? 'Added to favorites' : 'Removed from favorites', 'success');
+        
+        if (result.action === 'added') {
+            log.info('Favorite added:', currentProduct.sku);
+        } else {
+            log.info('Favorite removed:', currentProduct.sku);
+        }
+    });
+    
+    scanAgainBtn.addEventListener('click', () => {
+        if (isScanning) {
+            stopScanner();
+        } else {
+            startScanner();
+        }
+    });
+    
+    addHistoryBtn.addEventListener('click', async () => {
+        if (!currentProduct) return;
+        await historyRepository.addEntry(
+            'price_check',
+            currentProduct,
+            'success',
+            `Checked: ${currentProduct.name}`
+        );
+        showToast('Added to history', 'success');
+    });
+    
+    // ============================================
+    // EVENTBUS LISTENERS
+    // ============================================
+    
+    eventBus.on(Events.SCAN_SUCCESS, async (data) => {
+        log.info('Scan success event received:', data.barcode);
+        
+        scannerStatus.textContent = `✅ Scanned: ${data.barcode}`;
+        searchInput.value = data.barcode;
+        
+        const product = await priceCheckerService.getByBarcode(data.barcode);
+        
+        if (product) {
+            displayProduct(product);
+            showToast('Product found!', 'success');
+        } else {
+            displayNotFound();
+            showToast('Product not found', 'warning');
+        }
+        
+        eventBus.emit('scan:recorded', { barcode: data.barcode });
+    });
+    
+    eventBus.on(Events.SCAN_ERROR, (data) => {
+        log.warning('Scan error event:', data.error);
+        scannerStatus.textContent = `⚠️ Error: ${data.error}`;
+    });
+    
+    eventBus.on(Events.SCAN_START, (data) => {
+        log.info('Scan start event:', data);
+        scannerStatus.textContent = data.continuousMode ? 'Continuous Scan: Scanning...' : 'Scanning... Point camera at barcode';
+    });
+    
+    eventBus.on(Events.SCAN_CANCEL, (data) => {
+        log.info('Scan cancel event:', data);
+        if (isScanning) {
+            stopScanner();
+        }
+    });
+    
+    eventBus.on('scan:continuous:resume', () => {
+        scannerStatus.textContent = 'Continuous Scan: Ready';
+        showToast('Scanner ready for next scan', 'info');
+    });
+    
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    
+    (async () => {
+        isContinuousMode = await settingsService.getContinuousScan();
+        updateContinuousUI();
+    })();
+    
+    if (!scanner.isLibraryLoaded()) {
+        log.warning('html5-qrcode library not loaded');
+        scanBtn.title = 'Scanner not available';
+        scanBtn.style.opacity = '0.5';
+        scanBtn.disabled = true;
+    }
+    
+    renderRecentSearches();
+    renderRecentScans();
+    await priceCheckerService.hasProductData().then(hasData => {
+        if (!hasData) {
+            noDataWarning.classList.remove('hidden');
+        } else {
+            noDataWarning.classList.add('hidden');
+        }
+    });
+    
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'aeon_recent_searches') {
+            renderRecentSearches();
+        }
+        if (e.key === 'aeon_recent_scans') {
+            renderRecentScans();
+        }
+    });
+    
+    window.addEventListener('beforeunload', () => {
+        if (isScanning) {
+            stopScanner();
+        }
+        scanner.destroy();
+    });
+</script>

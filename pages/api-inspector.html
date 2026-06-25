@@ -1,0 +1,213 @@
+<!-- API Inspector Page -->
+<div class="min-h-screen bg-gray-50">
+    <!-- App Bar -->
+    <header class="app-bar safe-top">
+        <div class="app-bar-left">
+            <span class="material-icons" onclick="window.router.goBack()">arrow_back</span>
+            <span class="app-bar-title">API Inspector</span>
+        </div>
+        <div class="app-bar-right">
+            <span class="material-icons" id="refresh-btn" title="Refresh">refresh</span>
+        </div>
+    </header>
+    
+    <!-- Content -->
+    <div class="p-4 max-w-md mx-auto">
+        <!-- Server Status -->
+        <div class="card p-4 mb-4">
+            <h3 class="font-medium text-gray-800 mb-3">Server Status</h3>
+            <div class="space-y-2 text-sm">
+                <div class="flex justify-between py-1 border-b border-gray-100">
+                    <span class="text-gray-500">Server IP</span>
+                    <span class="font-medium" id="server-ip">Not configured</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-gray-100">
+                    <span class="text-gray-500">Status</span>
+                    <span class="font-medium" id="server-status">Checking...</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-gray-100">
+                    <span class="text-gray-500">Response Time</span>
+                    <span class="font-medium" id="response-time">-</span>
+                </div>
+                <div class="flex justify-between py-1">
+                    <span class="text-gray-500">Base Path</span>
+                    <span class="font-medium text-xs" id="base-path">/aeon-panel/Api/</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Store Detail -->
+        <div class="card p-4 mb-4">
+            <h3 class="font-medium text-gray-800 mb-3">Store Detail</h3>
+            <div id="store-detail-content" class="text-sm text-gray-500">
+                <p class="text-center py-4">No store data available</p>
+            </div>
+        </div>
+        
+        <!-- Endpoints -->
+        <div class="card p-4 mb-4">
+            <h3 class="font-medium text-gray-800 mb-3">Endpoints</h3>
+            <div class="space-y-2 text-xs">
+                <div class="flex justify-between py-1 border-b border-gray-100">
+                    <span class="text-gray-500">Store Detail</span>
+                    <span class="font-mono">/aeon-panel/Api/store_detail</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-gray-100">
+                    <span class="text-gray-500">Download</span>
+                    <span class="font-mono">/aeon-panel/Api/download?table_name={table}</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-gray-100">
+                    <span class="text-gray-500">User DL</span>
+                    <span class="font-mono">download?table_name=user_dl</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-gray-100">
+                    <span class="text-gray-500">Article DL</span>
+                    <span class="font-mono">download?table_name=article_dl</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-gray-100">
+                    <span class="text-gray-500">Section DL</span>
+                    <span class="font-mono">download?table_name=section_dl</span>
+                </div>
+                <div class="flex justify-between py-1">
+                    <span class="text-gray-500">Dept DL</span>
+                    <span class="font-mono">download?table_name=dept_dl</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Debug Mode -->
+        <div class="card p-4 mb-4">
+            <h3 class="font-medium text-gray-800 mb-3">Debug Mode</h3>
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm">Debug Mode</p>
+                    <p class="text-xs text-gray-500">Log all API requests to console</p>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="debug-toggle" />
+                    <span class="switch-slider"></span>
+                </label>
+            </div>
+            <div id="debug-status" class="mt-2 text-xs text-gray-500"></div>
+        </div>
+        
+        <!-- Request Log -->
+        <div class="card p-4">
+            <h3 class="font-medium text-gray-800 mb-3">Recent Requests</h3>
+            <div id="request-log" class="space-y-1 max-h-48 overflow-y-auto">
+                <p class="text-xs text-gray-400 text-center py-4">No requests logged</p>
+            </div>
+            <button class="btn btn-secondary btn-sm mt-3 w-full" id="clear-log-btn">
+                Clear Log
+            </button>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { api } from '../js/api.js';
+    import { showToast } from '../js/ui.js';
+    import { logger } from '../js/core/Logger.js';
+    
+    const log = logger.child('APIInspector');
+    
+    const serverIp = document.getElementById('server-ip');
+    const serverStatus = document.getElementById('server-status');
+    const responseTime = document.getElementById('response-time');
+    const basePath = document.getElementById('base-path');
+    const storeDetailContent = document.getElementById('store-detail-content');
+    const debugToggle = document.getElementById('debug-toggle');
+    const debugStatus = document.getElementById('debug-status');
+    const requestLog = document.getElementById('request-log');
+    const refreshBtn = document.getElementById('refresh-btn');
+    const clearLogBtn = document.getElementById('clear-log-btn');
+    
+    async function loadInspectorData() {
+        try {
+            const data = await api.getInspectorData();
+            
+            serverIp.textContent = data.server.ip || 'Not configured';
+            basePath.textContent = data.server.basePath;
+            
+            const statusMap = {
+                'online': '<span class="text-green-600">✓ Online</span>',
+                'offline': '<span class="text-red-600">✗ Offline</span>',
+                'not_configured': '<span class="text-yellow-600">⚠ Not Configured</span>',
+                'error': '<span class="text-red-600">✗ Error</span>',
+                'unknown': '<span class="text-gray-500">? Unknown</span>'
+            };
+            serverStatus.innerHTML = statusMap[data.server.status] || statusMap.unknown;
+            responseTime.textContent = data.server.status === 'online' ? `${data.server.responseTime}ms` : '-';
+            
+            if (data.store) {
+                storeDetailContent.innerHTML = `
+                    <div class="space-y-1 text-sm">
+                        <div class="flex justify-between py-1 border-b border-gray-100">
+                            <span class="text-gray-500">Store Code</span>
+                            <span class="font-medium">${data.store.store_code || data.store.code || '-'}</span>
+                        </div>
+                        <div class="flex justify-between py-1 border-b border-gray-100">
+                            <span class="text-gray-500">Store Name</span>
+                            <span class="font-medium">${data.store.store_name || data.store.name || '-'}</span>
+                        </div>
+                        <div class="flex justify-between py-1">
+                            <span class="text-gray-500">Address</span>
+                            <span class="font-medium text-xs">${data.store.address || data.store.alamat || '-'}</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                storeDetailContent.innerHTML = '<p class="text-center text-gray-400 py-4">No store data available</p>';
+            }
+            
+            debugToggle.checked = data.debugMode;
+            debugStatus.textContent = data.debugMode ? 'Enabled - API requests logged to console' : 'Disabled';
+            debugStatus.className = `mt-2 text-xs ${data.debugMode ? 'text-green-600' : 'text-gray-500'}`;
+            
+            if (data.requestLog && data.requestLog.length > 0) {
+                requestLog.innerHTML = data.requestLog.map(entry => `
+                    <div class="text-xs py-1 border-b border-gray-100">
+                        <span class="text-gray-400">${new Date(entry.timestamp).toLocaleTimeString()}</span>
+                        <span class="${entry.status === 'error' ? 'text-red-600' : 'text-green-600'}">${entry.method}</span>
+                        <span class="text-gray-600">${entry.endpoint}</span>
+                        <span class="text-gray-400">${entry.duration}ms</span>
+                        ${entry.error ? `<span class="text-red-500">✗ ${entry.error}</span>` : ''}
+                    </div>
+                `).join('');
+            } else {
+                requestLog.innerHTML = '<p class="text-xs text-gray-400 text-center py-4">No requests logged</p>';
+            }
+            
+            log.info('API Inspector data loaded');
+            
+        } catch (error) {
+            log.error('Error loading inspector data:', error);
+            showToast('Error loading inspector data', 'error');
+        }
+    }
+    
+    debugToggle.addEventListener('change', async (e) => {
+        try {
+            const enabled = api.toggleDebugMode();
+            debugStatus.textContent = enabled ? 'Enabled - API requests logged to console' : 'Disabled';
+            debugStatus.className = `mt-2 text-xs ${enabled ? 'text-green-600' : 'text-gray-500'}`;
+            showToast(`Debug mode ${enabled ? 'enabled' : 'disabled'}`, 'info');
+            log.info(`Debug mode toggled: ${enabled}`);
+        } catch (error) {
+            showToast('Error toggling debug mode', 'error');
+        }
+    });
+    
+    refreshBtn.addEventListener('click', () => {
+        loadInspectorData();
+        showToast('Refreshed', 'info');
+    });
+    
+    clearLogBtn.addEventListener('click', () => {
+        api.clearRequestLog();
+        requestLog.innerHTML = '<p class="text-xs text-gray-400 text-center py-4">No requests logged</p>';
+        showToast('Log cleared', 'info');
+    });
+    
+    loadInspectorData();
+</script>

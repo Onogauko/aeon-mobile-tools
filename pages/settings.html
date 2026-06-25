@@ -1,0 +1,788 @@
+<!-- Settings Page -->
+<div class="min-h-screen bg-gray-50">
+    <!-- App Bar -->
+    <header class="app-bar safe-top">
+        <div class="app-bar-left">
+            <span class="material-icons" onclick="window.router.goBack()">arrow_back</span>
+            <span class="app-bar-title">Settings</span>
+        </div>
+        <div class="app-bar-right">
+            <span class="material-icons">more_vert</span>
+        </div>
+    </header>
+    
+    <!-- Content -->
+    <div class="p-4 max-w-md mx-auto">
+        <!-- Server Settings -->
+        <div class="card p-4 mb-4">
+            <h3 class="font-medium text-gray-800 mb-3">Server Configuration</h3>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Server IP Address</label>
+                    <div class="flex gap-2">
+                        <input 
+                            type="text" 
+                            id="server-ip-input" 
+                            class="flex-1 input-field" 
+                            placeholder="e.g., 192.168.1.100"
+                            value=""
+                        />
+                        <button id="test-connection-btn" class="btn btn-secondary whitespace-nowrap">
+                            <span class="material-icons text-sm">wifi_tethering</span>
+                            Test
+                        </button>
+                    </div>
+                    <div id="connection-status" class="mt-2 hidden">
+                        <div class="flex items-center gap-2 text-sm">
+                            <span class="material-icons text-lg" id="status-icon">check_circle</span>
+                            <span id="status-text">Connection successful</span>
+                        </div>
+                        <div id="store-detail" class="mt-2 text-xs text-gray-500 bg-gray-50 p-2 rounded-lg hidden">
+                            <pre id="store-detail-content" class="whitespace-pre-wrap"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Scanner Settings -->
+        <div class="card p-4 mb-4">
+            <h3 class="font-medium text-gray-800 mb-3">Scanner Settings</h3>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="font-medium text-sm">Sound</p>
+                        <p class="text-xs text-gray-500">Beep on scan success</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="scanner-sound-toggle" checked />
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="font-medium text-sm">Vibration</p>
+                        <p class="text-xs text-gray-500">Vibrate on scan success</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="scanner-vibration-toggle" checked />
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="font-medium text-sm">Continuous Scan</p>
+                        <p class="text-xs text-gray-500">Auto resume after scan</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="continuous-scan-toggle" />
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="font-medium text-sm">Auto Focus</p>
+                        <p class="text-xs text-gray-500">Continuous auto focus</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="auto-focus-toggle" checked />
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="font-medium text-sm">Torch Default</p>
+                        <p class="text-xs text-gray-500">Auto enable flashlight</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="torch-default-toggle" />
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="font-medium text-sm">Auto Stop</p>
+                        <p class="text-xs text-gray-500">Stop after successful scan</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="auto-stop-toggle" />
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        
+        <!-- User Settings -->
+        <div class="card p-4 mb-4">
+            <h3 class="font-medium text-gray-800 mb-3">Account</h3>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <span class="material-icons text-gray-500">person</span>
+                        <div>
+                            <p class="font-medium text-sm">User ID</p>
+                            <p class="text-xs text-gray-500" id="setting-userid">000001</p>
+                        </div>
+                    </div>
+                    <span class="text-xs text-primary">Active</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <span class="material-icons text-gray-500">email</span>
+                        <div>
+                            <p class="font-medium text-sm">Email</p>
+                            <p class="text-xs text-gray-500">user@aeon.com</p>
+                        </div>
+                    </div>
+                    <button class="text-primary text-sm font-medium">Change</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- App Settings -->
+        <div class="card p-4 mb-4">
+            <h3 class="font-medium text-gray-800 mb-3">App Preferences</h3>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="font-medium text-sm">Dark Mode</p>
+                        <p class="text-xs text-gray-500">Use dark theme</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="dark-mode-toggle" />
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="font-medium text-sm">Auto Sync</p>
+                        <p class="text-xs text-gray-500">Sync data automatically</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="auto-sync-toggle" />
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="font-medium text-sm">Sync Interval</p>
+                        <p class="text-xs text-gray-500">How often to sync data</p>
+                    </div>
+                    <select id="sync-interval" class="input-field w-32 text-sm py-2">
+                        <option value="3600000">1 hour</option>
+                        <option value="1800000">30 min</option>
+                        <option value="7200000">2 hours</option>
+                        <option value="86400000">1 day</option>
+                    </select>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="font-medium text-sm">Notifications</p>
+                        <p class="text-xs text-gray-500">Receive notifications</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" checked id="notif-toggle" />
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        
+        <!-- System Information -->
+        <div class="card p-4 mb-4">
+            <h3 class="font-medium text-gray-800 mb-3">System Information</h3>
+            <div class="space-y-2 text-sm">
+                <div class="flex justify-between py-1 border-b border-gray-100">
+                    <span class="text-gray-500">Application Version</span>
+                    <span class="font-medium" id="app-version">1.0.0</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-gray-100">
+                    <span class="text-gray-500">Database Version</span>
+                    <span class="font-medium" id="db-version">-</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-gray-100">
+                    <span class="text-gray-500">Device</span>
+                    <span class="font-medium" id="device-info">-</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-gray-100">
+                    <span class="text-gray-500">Browser</span>
+                    <span class="font-medium" id="browser-info">-</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-gray-100">
+                    <span class="text-gray-500">Storage Usage</span>
+                    <span class="font-medium" id="storage-usage">-</span>
+                </div>
+                <div class="flex justify-between py-1">
+                    <span class="text-gray-500">Database Size</span>
+                    <span class="font-medium" id="db-size-info">-</span>
+                </div>
+            </div>
+            <div class="mt-3 flex gap-2 flex-wrap">
+                <button class="btn btn-secondary btn-sm flex-1" id="run-self-test">
+                    <span class="material-icons text-sm">checklist</span>
+                    Run Self Test
+                </button>
+                <button class="btn btn-secondary btn-sm flex-1" id="view-logs">
+                    <span class="material-icons text-sm">receipt_long</span>
+                    View Logs
+                </button>
+                <button class="btn btn-secondary btn-sm flex-1" id="export-logs">
+                    <span class="material-icons text-sm">download</span>
+                    Export Logs
+                </button>
+            </div>
+            <div id="self-test-result" class="mt-3 hidden"></div>
+        </div>
+        
+        <!-- Data Settings -->
+        <div class="card p-4 mb-4">
+            <h3 class="font-medium text-gray-800 mb-3">Data Management</h3>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="font-medium text-sm">Cache Size</p>
+                        <p class="text-xs text-gray-500" id="cache-size">Calculating...</p>
+                    </div>
+                    <button class="text-primary text-sm font-medium" id="clear-cache-btn">Clear</button>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="font-medium text-sm">Export Data</p>
+                        <p class="text-xs text-gray-500">Export as JSON</p>
+                    </div>
+                    <button class="text-primary text-sm font-medium" id="export-data-btn">Export</button>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="font-medium text-sm">Reset App</p>
+                        <p class="text-xs text-gray-500">Clear all data</p>
+                    </div>
+                    <button class="text-red-500 text-sm font-medium" id="reset-btn">Reset</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- About -->
+        <div class="card p-4">
+            <h3 class="font-medium text-gray-800 mb-3">About</h3>
+            <div class="space-y-2">
+                <p class="text-sm text-gray-600">AEON Mobile Tools v1.0.0</p>
+                <p class="text-sm text-gray-600">Build: 2024.01.01</p>
+                <p class="text-sm text-gray-600">© 2024 AEON. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { showToast, confirmDialog } from '../js/ui.js';
+    import { logout } from '../js/auth.js';
+    import { router } from '../js/router.js';
+    import { api } from '../js/api.js';
+    import { settingsService } from '../js/services/SettingsService.js';
+    import { downloadService } from '../js/services/DownloadService.js';
+    import { settingRepository } from '../js/repository/SettingRepository.js';
+    import Config from '../js/config.js';
+    import { logger } from '../js/core/Logger.js';
+    
+    const log = logger.child('SettingsPage');
+    
+    const savedIP = localStorage.getItem(Config.storageKeys.serverIp) || '';
+    const serverInput = document.getElementById('server-ip-input');
+    const testBtn = document.getElementById('test-connection-btn');
+    const connectionStatus = document.getElementById('connection-status');
+    const statusIcon = document.getElementById('status-icon');
+    const statusText = document.getElementById('status-text');
+    const storeDetail = document.getElementById('store-detail');
+    const storeDetailContent = document.getElementById('store-detail-content');
+    
+    if (savedIP) {
+        serverInput.value = savedIP;
+    }
+    
+    // ============================================
+    // TEST CONNECTION
+    // ============================================
+    
+    testBtn.addEventListener('click', async () => {
+        const ip = serverInput.value.trim();
+        if (!ip) {
+            showToast('Please enter a Server IP', 'warning');
+            return;
+        }
+        
+        const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
+        if (!ipRegex.test(ip)) {
+            showToast('Invalid IP address format', 'warning');
+            return;
+        }
+        
+        testBtn.disabled = true;
+        testBtn.innerHTML = `
+            <span class="spinner" style="width: 16px; height: 16px; border-width: 2px; display: inline-block;"></span>
+            Testing...
+        `;
+        connectionStatus.classList.add('hidden');
+        storeDetail.classList.add('hidden');
+        
+        try {
+            const result = await api.testConnection(ip);
+            
+            connectionStatus.classList.remove('hidden');
+            
+            if (result.success) {
+                localStorage.setItem(Config.storageKeys.serverIp, ip);
+                api.setServerIP(ip);
+                
+                statusIcon.textContent = 'check_circle';
+                statusIcon.style.color = '#2e7d32';
+                statusText.textContent = 'Connection successful!';
+                statusText.style.color = '#2e7d32';
+                
+                if (result.data) {
+                    storeDetail.classList.remove('hidden');
+                    storeDetailContent.textContent = JSON.stringify(result.data, null, 2);
+                }
+                
+                showToast('Connection successful!', 'success');
+                log.info('Connection test successful for IP:', ip);
+            } else {
+                statusIcon.textContent = 'error';
+                statusIcon.style.color = '#c62828';
+                statusText.textContent = `Connection failed: ${result.error}`;
+                statusText.style.color = '#c62828';
+                storeDetail.classList.add('hidden');
+                showToast(`Connection failed: ${result.error}`, 'error');
+                log.warning('Connection test failed:', result.error);
+            }
+        } catch (error) {
+            connectionStatus.classList.remove('hidden');
+            statusIcon.textContent = 'error';
+            statusIcon.style.color = '#c62828';
+            statusText.textContent = `Error: ${error.message}`;
+            statusText.style.color = '#c62828';
+            storeDetail.classList.add('hidden');
+            showToast(`Error: ${error.message}`, 'error');
+            log.error('Connection test error:', error);
+        } finally {
+            testBtn.disabled = false;
+            testBtn.innerHTML = `
+                <span class="material-icons text-sm">wifi_tethering</span>
+                Test
+            `;
+        }
+    });
+    
+    // ============================================
+    // SCANNER SETTINGS
+    // ============================================
+    
+    async function loadScannerSettings() {
+        try {
+            const sound = await settingsService.getScannerSound();
+            const vibration = await settingsService.getScannerVibration();
+            const continuous = await settingsService.getContinuousScan();
+            const autoFocus = await settingsService.getAutoFocus();
+            const torchDefault = await settingsService.getTorchDefault();
+            const autoStop = await settingsService.get('auto_stop', false);
+            
+            document.getElementById('scanner-sound-toggle').checked = sound;
+            document.getElementById('scanner-vibration-toggle').checked = vibration;
+            document.getElementById('continuous-scan-toggle').checked = continuous;
+            document.getElementById('auto-focus-toggle').checked = autoFocus;
+            document.getElementById('torch-default-toggle').checked = torchDefault;
+            document.getElementById('auto-stop-toggle').checked = autoStop;
+            
+            log.debug('Scanner settings loaded');
+        } catch (error) {
+            log.error('Error loading scanner settings:', error);
+        }
+    }
+    
+    async function saveScannerSetting(key, value) {
+        try {
+            if (key === 'auto_stop') {
+                await settingsService.set('auto_stop', value);
+            } else {
+                const methodMap = {
+                    'scanner_sound': settingsService.setScannerSound,
+                    'scanner_vibration': settingsService.setScannerVibration,
+                    'continuous_scan': settingsService.setContinuousScan,
+                    'auto_focus': settingsService.setAutoFocus,
+                    'torch_default': settingsService.setTorchDefault
+                };
+                
+                const method = methodMap[key];
+                if (method) {
+                    await method.call(settingsService, value);
+                }
+            }
+            log.info(`Scanner setting saved: ${key} = ${value}`);
+        } catch (error) {
+            log.error(`Error saving scanner setting ${key}:`, error);
+        }
+    }
+    
+    document.getElementById('scanner-sound-toggle').addEventListener('change', (e) => {
+        saveScannerSetting('scanner_sound', e.target.checked);
+        showToast(e.target.checked ? 'Sound enabled' : 'Sound disabled', 'info');
+    });
+    
+    document.getElementById('scanner-vibration-toggle').addEventListener('change', (e) => {
+        saveScannerSetting('scanner_vibration', e.target.checked);
+        showToast(e.target.checked ? 'Vibration enabled' : 'Vibration disabled', 'info');
+    });
+    
+    document.getElementById('continuous-scan-toggle').addEventListener('change', (e) => {
+        saveScannerSetting('continuous_scan', e.target.checked);
+        showToast(e.target.checked ? 'Continuous scan enabled' : 'Continuous scan disabled', 'info');
+    });
+    
+    document.getElementById('auto-focus-toggle').addEventListener('change', (e) => {
+        saveScannerSetting('auto_focus', e.target.checked);
+        showToast(e.target.checked ? 'Auto focus enabled' : 'Auto focus disabled', 'info');
+    });
+    
+    document.getElementById('torch-default-toggle').addEventListener('change', (e) => {
+        saveScannerSetting('torch_default', e.target.checked);
+        showToast(e.target.checked ? 'Torch default enabled' : 'Torch default disabled', 'info');
+    });
+    
+    document.getElementById('auto-stop-toggle').addEventListener('change', (e) => {
+        saveScannerSetting('auto_stop', e.target.checked);
+        showToast(e.target.checked ? 'Auto stop enabled' : 'Auto stop disabled', 'info');
+    });
+    
+    // ============================================
+    // SYSTEM INFORMATION
+    // ============================================
+    
+    async function loadSystemInfo() {
+        try {
+            document.getElementById('app-version').textContent = '1.0.0';
+            
+            const dbVersion = await settingRepository.getDatabaseVersion();
+            document.getElementById('db-version').textContent = dbVersion || '1.0.0';
+            
+            const ua = navigator.userAgent;
+            const device = /Android|iPhone|iPad|iPod|Windows Phone|webOS/i.test(ua) 
+                ? ua.match(/Android|iPhone|iPad|iPod|Windows Phone|webOS/i)[0] 
+                : 'Desktop';
+            document.getElementById('device-info').textContent = device;
+            
+            const browser = /Chrome|Firefox|Safari|Edge|Opera/i.test(ua)
+                ? ua.match(/Chrome|Firefox|Safari|Edge|Opera/i)[0]
+                : 'Unknown';
+            const version = ua.match(/(?:Chrome|Firefox|Safari|Edge|Opera)\/(\d+)/)?.[1] || '';
+            document.getElementById('browser-info').textContent = `${browser} ${version}`;
+            
+            let storageUsed = 0;
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                const value = localStorage.getItem(key);
+                storageUsed += (key.length + value.length) * 2;
+            }
+            document.getElementById('storage-usage').textContent = (storageUsed / 1024 / 1024).toFixed(2) + ' MB';
+            
+            const stats = await downloadService.getDownloadStats();
+            document.getElementById('db-size-info').textContent = stats?.databaseSize ? `${stats.databaseSize} MB` : '0 MB';
+            
+        } catch (error) {
+            log.error('Error loading system info:', error);
+        }
+    }
+    
+    await loadSystemInfo();
+    
+    // ============================================
+    // SELF TEST
+    // ============================================
+    
+    document.getElementById('run-self-test').addEventListener('click', async () => {
+        const btn = document.getElementById('run-self-test');
+        const resultDiv = document.getElementById('self-test-result');
+        
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px;display:inline-block;"></span> Testing...';
+        resultDiv.classList.remove('hidden');
+        resultDiv.innerHTML = '<p class="text-sm text-gray-500">Running tests...</p>';
+        
+        try {
+            const { selfTest } = await import('../core/SelfTest.js');
+            const result = await selfTest.runAll();
+            
+            const passedCount = result.results.filter(r => r.passed).length;
+            const totalCount = result.results.length;
+            
+            resultDiv.innerHTML = `
+                <div class="p-3 rounded-lg ${result.passed ? 'bg-green-50' : 'bg-red-50'}">
+                    <p class="font-medium ${result.passed ? 'text-green-700' : 'text-red-700'}">
+                        ${result.passed ? '✓ All tests passed!' : '⚠️ Some tests failed'}
+                    </p>
+                    <p class="text-xs text-gray-500 mt-1">${passedCount}/${totalCount} tests passed</p>
+                    <div class="mt-2 space-y-1 text-xs">
+                        ${result.results.map(r => `
+                            <div class="flex justify-between py-1 border-b border-gray-100 last:border-0">
+                                <span>${r.name}</span>
+                                <span class="${r.passed ? 'text-green-600' : 'text-red-600'}">
+                                    ${r.passed ? '✓' : '✗'} ${r.details || r.error || ''}
+                                </span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            showToast(`Self test ${result.passed ? 'passed' : 'failed'}`, result.passed ? 'success' : 'error');
+            
+        } catch (error) {
+            resultDiv.innerHTML = `
+                <div class="p-3 rounded-lg bg-red-50">
+                    <p class="font-medium text-red-700">Test failed: ${error.message}</p>
+                </div>
+            `;
+            showToast('Self test failed', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<span class="material-icons text-sm">checklist</span> Run Self Test';
+        }
+    });
+    
+    // ============================================
+    // VIEW LOGS
+    // ============================================
+    
+    document.getElementById('view-logs').addEventListener('click', async () => {
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4';
+        modal.innerHTML = `
+            <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] flex flex-col shadow-2xl">
+                <div class="flex items-center justify-between p-4 border-b">
+                    <h3 class="font-bold text-gray-800">Log Viewer</h3>
+                    <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
+                        <span class="material-icons">close</span>
+                    </button>
+                </div>
+                <div class="flex gap-2 p-4 border-b flex-wrap">
+                    <button class="btn btn-secondary btn-sm log-filter" data-level="ERROR">Errors</button>
+                    <button class="btn btn-secondary btn-sm log-filter" data-level="WARNING">Warnings</button>
+                    <button class="btn btn-secondary btn-sm log-filter" data-level="INFO">Info</button>
+                    <button class="btn btn-secondary btn-sm log-filter" data-level="DEBUG">Debug</button>
+                    <button class="btn btn-secondary btn-sm" id="log-download">Download</button>
+                    <button class="btn btn-secondary btn-sm" id="log-clear">Clear</button>
+                </div>
+                <div class="flex-1 overflow-y-auto p-4 font-mono text-xs" id="log-content">
+                    Loading logs...
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        const logContent = document.getElementById('log-content');
+        const { logViewer } = await import('../core/LogViewer.js');
+        
+        function renderLogs(level) {
+            const filters = level ? { level } : {};
+            const logs = logViewer.getLogs(filters);
+            
+            if (logs.length === 0) {
+                logContent.innerHTML = '<p class="text-gray-400 text-center py-4">No logs available</p>';
+                return;
+            }
+            
+            logContent.innerHTML = logs.slice(0, 50).map(log => `
+                <div class="py-1 border-b border-gray-100 hover:bg-gray-50">
+                    <span class="text-gray-400">${new Date(log.timestamp).toLocaleTimeString()}</span>
+                    <span class="text-${log.level === 'ERROR' ? 'red' : log.level === 'WARNING' ? 'yellow' : 'blue'}-600 font-bold">[${log.level}]</span>
+                    ${log.module ? `<span class="text-gray-500">[${log.module}]</span>` : ''}
+                    <span>${log.message}</span>
+                    ${log.data ? `<details class="text-gray-400"><summary>data</summary><pre>${JSON.stringify(log.data, null, 2)}</pre></details>` : ''}
+                </div>
+            `).join('');
+        }
+        
+        renderLogs();
+        
+        modal.querySelectorAll('.log-filter').forEach(btn => {
+            btn.addEventListener('click', () => {
+                renderLogs(btn.dataset.level);
+            });
+        });
+        
+        document.getElementById('log-download').addEventListener('click', () => {
+            logViewer.downloadLogs('json');
+        });
+        
+        document.getElementById('log-clear').addEventListener('click', () => {
+            if (confirm('Clear all logs?')) {
+                logViewer.clear();
+                renderLogs();
+                showToast('Logs cleared', 'info');
+            }
+        });
+    });
+    
+    // ============================================
+    // EXPORT LOGS
+    // ============================================
+    
+    document.getElementById('export-logs').addEventListener('click', async () => {
+        try {
+            const { logViewer } = await import('../core/LogViewer.js');
+            logViewer.downloadLogs('json');
+            showToast('Logs exported', 'success');
+        } catch (error) {
+            showToast('Error exporting logs', 'error');
+        }
+    });
+    
+    // ============================================
+    // OTHER SETTINGS
+    // ============================================
+    
+    const autoSyncToggle = document.getElementById('auto-sync-toggle');
+    const syncInterval = document.getElementById('sync-interval');
+    
+    const savedAutoSync = localStorage.getItem('aeon_auto_sync') === 'true';
+    const savedInterval = localStorage.getItem('aeon_sync_interval') || '3600000';
+    
+    autoSyncToggle.checked = savedAutoSync;
+    syncInterval.value = savedInterval;
+    
+    autoSyncToggle.addEventListener('change', (e) => {
+        localStorage.setItem('aeon_auto_sync', e.target.checked);
+        showToast(e.target.checked ? 'Auto sync enabled' : 'Auto sync disabled', 'info');
+    });
+    
+    syncInterval.addEventListener('change', (e) => {
+        localStorage.setItem('aeon_sync_interval', e.target.value);
+        showToast('Sync interval updated', 'info');
+    });
+    
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        darkModeToggle.checked = true;
+        document.documentElement.classList.add('dark');
+    }
+    
+    darkModeToggle.addEventListener('change', (e) => {
+        if (e.target.checked) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    });
+    
+    const notifToggle = document.getElementById('notif-toggle');
+    notifToggle.addEventListener('change', (e) => {
+        localStorage.setItem('aeon_notifications', e.target.checked);
+        showToast(e.target.checked ? 'Notifications enabled' : 'Notifications disabled', 'info');
+    });
+    
+    const savedNotif = localStorage.getItem('aeon_notifications') !== 'false';
+    notifToggle.checked = savedNotif;
+    
+    // ============================================
+    // DATA MANAGEMENT
+    // ============================================
+    
+    async function updateCacheSize() {
+        try {
+            const { indexedDB } = await import('../js/storage.js');
+            const stores = ['user_dl', 'article_dl', 'section_dl', 'dept_dl', 'favorite'];
+            let total = 0;
+            for (const store of stores) {
+                const count = await indexedDB.count(store);
+                total += count;
+            }
+            document.getElementById('cache-size').textContent = `${total} records cached`;
+        } catch (error) {
+            document.getElementById('cache-size').textContent = '0 records cached';
+        }
+    }
+    updateCacheSize();
+    
+    document.getElementById('clear-cache-btn').addEventListener('click', async () => {
+        const confirmed = await confirmDialog(
+            'Clear Cache',
+            'This will clear all downloaded data. Are you sure?',
+            'Yes, Clear',
+            'Cancel'
+        );
+        if (confirmed) {
+            try {
+                const { indexedDB } = await import('../js/storage.js');
+                const stores = ['user_dl', 'article_dl', 'section_dl', 'dept_dl', 'favorite'];
+                for (const store of stores) {
+                    await indexedDB.clear(store);
+                }
+                await updateCacheSize();
+                showToast('Cache cleared successfully', 'success');
+                log.info('Cache cleared');
+            } catch (error) {
+                showToast('Error clearing cache', 'error');
+                log.error('Cache clear error:', error);
+            }
+        }
+    });
+    
+    document.getElementById('export-data-btn').addEventListener('click', async () => {
+        try {
+            const { indexedDB } = await import('../js/storage.js');
+            const stores = ['user_dl', 'article_dl', 'section_dl', 'dept_dl', 'history', 'favorite'];
+            const data = {};
+            for (const store of stores) {
+                data[store] = await indexedDB.getAll(store);
+            }
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `aeon_data_${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Data exported successfully', 'success');
+            log.info('Data exported');
+        } catch (error) {
+            showToast('Error exporting data', 'error');
+            log.error('Export error:', error);
+        }
+    });
+    
+    document.getElementById('reset-btn').addEventListener('click', async () => {
+        const confirmed = await confirmDialog(
+            'Reset App',
+            'This will clear all app data and log you out. Are you sure?',
+            'Yes, Reset',
+            'Cancel'
+        );
+        if (confirmed) {
+            try {
+                const { indexedDB } = await import('../js/storage.js');
+                const stores = ['user_dl', 'article_dl', 'section_dl', 'dept_dl', 'history', 'settings', 'favorite'];
+                for (const store of stores) {
+                    await indexedDB.clear(store);
+                }
+                localStorage.removeItem(Config.storageKeys.serverIp);
+                logout();
+                showToast('App data cleared', 'info');
+                log.info('App reset');
+                router.navigate('/login');
+            } catch (error) {
+                showToast('Error resetting app', 'error');
+                log.error('Reset error:', error);
+            }
+        }
+    });
+    
+    const user = JSON.parse(localStorage.getItem('aeon_user_data') || '{}');
+    if (user.userId) {
+        document.getElementById('setting-userid').textContent = user.userId;
+    }
+    
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    
+    await loadScannerSettings();
+</script>

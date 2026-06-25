@@ -1,0 +1,345 @@
+<!-- Download Master Page -->
+<div class="min-h-screen bg-gray-50">
+    <!-- App Bar -->
+    <header class="app-bar safe-top">
+        <div class="app-bar-left">
+            <span class="material-icons" onclick="window.router.goBack()">arrow_back</span>
+            <span class="app-bar-title">Download Master</span>
+        </div>
+        <div class="app-bar-right">
+            <span class="material-icons">more_vert</span>
+        </div>
+    </header>
+    
+    <!-- Content -->
+    <div class="p-4 max-w-md mx-auto">
+        <!-- Download Info -->
+        <div class="card p-4 mb-4">
+            <h3 class="font-medium text-gray-800 mb-2">Master Data Download</h3>
+            <p class="text-sm text-gray-500">Download data from server to use offline</p>
+            
+            <div class="mt-3 flex items-center gap-2 text-sm">
+                <span class="material-icons text-gray-400 text-sm">wifi</span>
+                <span id="server-status" class="text-gray-600">Server: Not configured</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+                <span class="material-icons text-gray-400 text-sm">storage</span>
+                <span id="cache-status" class="text-gray-600">Cache: 0 records</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+                <span class="material-icons text-gray-400 text-sm">schedule</span>
+                <span id="last-download" class="text-gray-600">Last download: Never</span>
+            </div>
+        </div>
+        
+        <!-- Download Button -->
+        <button class="btn btn-primary btn-block py-4 text-lg" id="download-btn">
+            <span class="material-icons">cloud_download</span>
+            START DOWNLOAD
+        </button>
+        
+        <!-- Download Progress -->
+        <div id="download-progress" class="card p-4 mt-4 hidden">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium" id="progress-title">Downloading...</span>
+                <span class="text-sm text-primary font-bold" id="progress-percent">0%</span>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+            </div>
+            
+            <div class="mt-3 space-y-2">
+                <!-- Current file being downloaded -->
+                <div class="flex items-center justify-between text-sm">
+                    <div class="flex items-center gap-2">
+                        <span class="material-icons text-primary" id="current-icon">file_download</span>
+                        <span id="current-file" class="text-gray-700">Preparing...</span>
+                    </div>
+                    <span id="file-status" class="text-gray-500">pending</span>
+                </div>
+                
+                <!-- Step indicator -->
+                <div class="flex justify-between text-xs text-gray-500">
+                    <span id="step-indicator">Step 0 of 4</span>
+                    <span id="records-count">0 records</span>
+                </div>
+            </div>
+            
+            <!-- Status message -->
+            <div class="mt-3 p-2 bg-gray-50 rounded-lg">
+                <p class="text-xs text-gray-600" id="status-message">Initializing download...</p>
+            </div>
+            
+            <!-- Summary (shown after completion) -->
+            <div id="download-summary" class="mt-3 hidden">
+                <div class="border-t border-gray-200 pt-3">
+                    <h4 class="text-sm font-medium text-gray-700 mb-2">Download Summary</h4>
+                    <div class="grid grid-cols-2 gap-2 text-sm">
+                        <div class="bg-green-50 p-2 rounded-lg text-center">
+                            <p class="text-green-600 font-bold" id="success-count">0</p>
+                            <p class="text-xs text-gray-500">Successful</p>
+                        </div>
+                        <div class="bg-red-50 p-2 rounded-lg text-center">
+                            <p class="text-red-600 font-bold" id="failed-count">0</p>
+                            <p class="text-xs text-gray-500">Failed</p>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-center">
+                        <p class="text-sm font-medium text-gray-700" id="total-records">Total: 0 records</p>
+                    </div>
+                    <div class="mt-2 text-center">
+                        <button class="btn btn-secondary btn-sm" id="close-summary-btn">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Download History -->
+        <div class="mt-6">
+            <h3 class="font-medium text-gray-700 mb-3">Download History</h3>
+            <div class="card divide-y divide-gray-100" id="history-list">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { showToast } from '../js/ui.js';
+    import { api } from '../js/api.js';
+    import { downloadMasterData, getDownloadStatus, resetDownloadState, DOWNLOAD_STEPS } from '../js/download.js';
+    import { indexedDB } from '../js/storage.js';
+    import Config from '../js/config.js';
+    
+    // DOM elements
+    const downloadBtn = document.getElementById('download-btn');
+    const progressDiv = document.getElementById('download-progress');
+    const progressFill = document.getElementById('progress-fill');
+    const progressPercent = document.getElementById('progress-percent');
+    const progressTitle = document.getElementById('progress-title');
+    const currentFile = document.getElementById('current-file');
+    const currentIcon = document.getElementById('current-icon');
+    const fileStatus = document.getElementById('file-status');
+    const stepIndicator = document.getElementById('step-indicator');
+    const recordsCount = document.getElementById('records-count');
+    const statusMessage = document.getElementById('status-message');
+    const downloadSummary = document.getElementById('download-summary');
+    const successCount = document.getElementById('success-count');
+    const failedCount = document.getElementById('failed-count');
+    const totalRecords = document.getElementById('total-records');
+    const serverStatus = document.getElementById('server-status');
+    const cacheStatus = document.getElementById('cache-status');
+    const lastDownload = document.getElementById('last-download');
+    const historyList = document.getElementById('history-list');
+    const closeSummaryBtn = document.getElementById('close-summary-btn');
+    
+    let isDownloading = false;
+    
+    // Update server status
+    function updateServerStatus() {
+        const ip = api.getServerIP();
+        if (ip) {
+            serverStatus.textContent = `Server: ${ip}`;
+            serverStatus.className = 'text-green-600';
+        } else {
+            serverStatus.textContent = 'Server: Not configured (go to Settings)';
+            serverStatus.className = 'text-red-500';
+        }
+    }
+    
+    // Update cache status
+    async function updateCacheStatus() {
+        try {
+            const stores = ['user_dl', 'article_dl', 'section_dl', 'dept_dl'];
+            let total = 0;
+            for (const store of stores) {
+                const count = await indexedDB.count(store);
+                total += count;
+            }
+            cacheStatus.textContent = `Cache: ${total} records`;
+            
+            // Check last download from history
+            const history = await indexedDB.getAll('history');
+            const downloads = history.filter(h => h.action === 'download').sort((a, b) => 
+                new Date(b.timestamp) - new Date(a.timestamp)
+            );
+            if (downloads.length > 0) {
+                const last = downloads[0];
+                const date = new Date(last.timestamp);
+                lastDownload.textContent = `Last download: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+            } else {
+                lastDownload.textContent = 'Last download: Never';
+            }
+        } catch (error) {
+            console.error('Error updating cache status:', error);
+            cacheStatus.textContent = 'Cache: 0 records';
+        }
+    }
+    
+    // Load download history
+    async function loadHistory() {
+        try {
+            const history = await indexedDB.getAll('history');
+            const downloadHistory = history.filter(h => h.action === 'download');
+            
+            if (downloadHistory.length === 0) {
+                historyList.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <span class="material-icons text-4xl text-gray-300">cloud_download</span>
+                        <p class="text-sm mt-2">No download history</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Show latest 10
+            const recent = downloadHistory.slice(-10).reverse();
+            historyList.innerHTML = recent.map(item => `
+                <div class="flex items-center justify-between p-3 hover:bg-gray-50 transition-colors">
+                    <div class="flex-1">
+                        <p class="font-medium text-sm">${item.detail || 'Download'}</p>
+                        <p class="text-xs text-gray-500">${new Date(item.timestamp).toLocaleString()}</p>
+                        ${item.records ? `<p class="text-xs text-gray-400">${item.records} records</p>` : ''}
+                    </div>
+                    <span class="badge ${item.status === 'success' ? 'badge-success' : 'badge-danger'}">
+                        ${item.status === 'success' ? '✓ Complete' : '✗ Failed'}
+                    </span>
+                </div>
+            `).join('');
+        } catch (error) {
+            console.error('Error loading history:', error);
+        }
+    }
+    
+    // Save download history
+    async function saveHistory(status, detail, records = 0) {
+        try {
+            await indexedDB.add('history', {
+                action: 'download',
+                status: status,
+                detail: detail,
+                records: records,
+                timestamp: new Date().toISOString()
+            });
+            await loadHistory();
+            await updateCacheStatus();
+        } catch (error) {
+            console.error('Error saving history:', error);
+        }
+    }
+    
+    // Update progress UI
+    function updateProgress(status) {
+        const progress = status.progress || 0;
+        progressFill.style.width = `${progress}%`;
+        progressPercent.textContent = `${Math.round(progress)}%`;
+        
+        if (status.step) {
+            currentFile.textContent = status.step.name;
+            currentIcon.textContent = status.step.icon || 'file_download';
+            stepIndicator.textContent = `Step ${status.currentStep + 1} of ${status.totalSteps}`;
+            
+            if (status.results && status.results[status.step.id]) {
+                const result = status.results[status.step.id];
+                if (result.success) {
+                    fileStatus.textContent = `✓ ${result.count} records`;
+                    fileStatus.className = 'text-green-600 font-medium';
+                } else {
+                    fileStatus.textContent = '✗ Failed';
+                    fileStatus.className = 'text-red-500 font-medium';
+                }
+            } else {
+                fileStatus.textContent = '⏳ Downloading...';
+                fileStatus.className = 'text-blue-500 font-medium';
+            }
+        }
+        
+        if (status.message) {
+            statusMessage.textContent = status.message;
+        }
+        
+        if (status.summary) {
+            downloadSummary.classList.remove('hidden');
+            successCount.textContent = status.summary.successCount;
+            failedCount.textContent = status.summary.failedCount;
+            totalRecords.textContent = `Total: ${status.summary.totalRecords} records`;
+        }
+    }
+    
+    // Close summary
+    closeSummaryBtn.addEventListener('click', () => {
+        downloadSummary.classList.add('hidden');
+    });
+    
+    // Download button click handler
+    downloadBtn.addEventListener('click', async () => {
+        if (isDownloading) return;
+        
+        // Check server IP
+        const ip = api.getServerIP();
+        if (!ip) {
+            showToast('Please configure Server IP in Settings first', 'warning');
+            return;
+        }
+        
+        isDownloading = true;
+        downloadBtn.disabled = true;
+        downloadBtn.innerHTML = `
+            <span class="spinner" style="width: 20px; height: 20px; border-width: 2px;"></span>
+            DOWNLOADING...
+        `;
+        
+        // Show progress
+        progressDiv.classList.remove('hidden');
+        downloadSummary.classList.add('hidden');
+        resetDownloadState();
+        
+        try {
+            // Start download
+            const result = await downloadMasterData((status) => {
+                updateProgress(status);
+            });
+            
+            // Save history
+            await saveHistory('success', `Downloaded ${result.summary.totalRecords} records`, result.summary.totalRecords);
+            
+            // Update cache status
+            await updateCacheStatus();
+            
+            showToast(`Download complete! ${result.summary.totalRecords} records synced`, 'success');
+            
+        } catch (error) {
+            console.error('Download error:', error);
+            await saveHistory('failed', error.message, 0);
+            showToast(`Download failed: ${error.message}`, 'error');
+            
+            // Update UI for error
+            statusMessage.textContent = `Error: ${error.message}`;
+            statusMessage.className = 'text-red-500 text-xs';
+            
+        } finally {
+            isDownloading = false;
+            downloadBtn.disabled = false;
+            downloadBtn.innerHTML = `
+                <span class="material-icons">cloud_download</span>
+                START DOWNLOAD
+            `;
+            
+            // Update cache status
+            await updateCacheStatus();
+        }
+    });
+    
+    // Initialize
+    updateServerStatus();
+    updateCacheStatus();
+    loadHistory();
+    
+    // Listen for settings changes
+    window.addEventListener('storage', (e) => {
+        if (e.key === Config.storageKeys.serverIp) {
+            updateServerStatus();
+        }
+    });
+</script>

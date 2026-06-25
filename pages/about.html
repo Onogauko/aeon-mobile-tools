@@ -1,0 +1,79 @@
+<!-- About Page -->
+<div class="min-h-screen bg-gray-50">
+    <!-- App Bar -->
+    <header class="app-bar safe-top">
+        <div class="app-bar-left">
+            <span class="material-icons" onclick="window.router.goBack()">arrow_back</span>
+            <span class="app-bar-title">About</span>
+        </div>
+    </header>
+    
+    <!-- Content -->
+    <div class="p-4 max-w-md mx-auto">
+        <!-- App Info -->
+        <div class="card p-6 text-center mb-4">
+            <div class="w-24 h-24 mx-auto mb-4 bg-primary rounded-2xl flex items-center justify-center">
+                <img src="assets/logo.svg" alt="AEON" class="w-16 h-16" />
+            </div>
+            <h1 class="text-2xl font-bold text-gray-800">AEON Mobile Tools</h1>
+            <p class="text-gray-500 mt-1">Version 1.0.0</p>
+            <p class="text-gray-400 text-sm mt-2">Build: 2024.01.01</p>
+            
+            <div class="mt-4 flex justify-center gap-2">
+                <span class="badge badge-primary">PWA</span>
+                <span class="badge badge-success">Offline Ready</span>
+                <span class="badge badge-info">Material Design</span>
+            </div>
+        </div>
+        
+        <!-- Features -->
+        <div class="card p-4 mb-4">
+            <h3 class="font-medium text-gray-800 mb-3">Features</h3>
+            <div class="space-y-2">
+                <div class="flex items-center gap-3 text-sm">
+                    <span class="material-icons text-primary">check_circle</span>
+                    <span>Price Checker</span>
+                </div>
+                <div class="flex items-center gap-3 text-sm">
+                    <span class="material-icons text-primary">check_circle</span>
+                    <span>Download Master Data</span>
+                </div>
+                <div class="flex items-center gap-3 text-sm">
+                    <span class="material-icons text-primary">check_circle</span>
+                    <span>Offline Mode</span>
+                </div>
+                <div class="flex items-center gap-3 text-sm">
+                    <span class="material-icons text-primary">check_circle</span>
+                    <span>Activity History</span>
+                </div>
+                <div class="flex items-center gap-3 text-sm">
+                    <span class="material-icons text-primary">check_circle</span>
+                    <span>PWA Installable</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tech Stack -->
+        <div class="card p-4 mb-4">
+            <h3 class="font-medium text-gray-800 mb-3">Technology Stack</h3>
+            <div class="grid grid-cols-2 gap-2 text-sm">
+                <div class="bg-gray-50 p-2 rounded-lg text-center">HTML5</div>
+                <div class="bg-gray-50 p-2 rounded-lg text-center">Tailwind CSS</div>
+                <div class="bg-gray-50 p-2 rounded-lg text-center">Vanilla JS</div>
+                <div class="bg-gray-50 p-2 rounded-lg text-center">IndexedDB</div>
+                <div class="bg-gray-50 p-2 rounded-lg text-center">Service Worker</div>
+                <div class="bg-gray-50 p-2 rounded-lg text-center">Material Icons</div>
+            </div>
+        </div>
+        
+        <!-- Company Info -->
+        <div class="card p-4">
+            <h3 class="font-medium text-gray-800 mb-3">Company</h3>
+            <p class="text-sm text-gray-600">AEON is a leading retail company providing quality products and services.</p>
+            <div class="mt-3 space-y-1 text-sm text-gray-500">
+                <p>© 2024 AEON</p>
+                <p>All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</div>

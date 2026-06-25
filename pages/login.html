@@ -1,0 +1,194 @@
+<!-- Login Page -->
+<div class="login-container">
+    <div class="login-card">
+        <!-- Logo -->
+        <div class="login-logo">
+            <img src="assets/logo.svg" alt="AEON" />
+            <h1>AEON Mobile Tools</h1>
+            <p>Sign in to continue</p>
+        </div>
+        
+        <!-- Login Form -->
+        <form class="login-form" id="login-form">
+            <div class="form-group">
+                <label for="user-id">User ID</label>
+                <div class="input-wrapper">
+                    <span class="material-icons">person</span>
+                    <input 
+                        type="text" 
+                        id="user-id" 
+                        placeholder="Enter your user ID" 
+                        autocomplete="username"
+                        required
+                    />
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-wrapper">
+                    <span class="material-icons">lock</span>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        placeholder="Enter your password" 
+                        autocomplete="current-password"
+                        required
+                    />
+                </div>
+            </div>
+            
+            <div class="login-options">
+                <label>
+                    <input type="checkbox" id="remember-me" checked />
+                    Remember Me
+                </label>
+                <a href="#" id="forgot-password">Forgot Password?</a>
+            </div>
+            
+            <button type="submit" class="btn-login" id="login-btn">
+                <span class="material-icons">login</span>
+                LOGIN
+            </button>
+        </form>
+        
+        <!-- Status Message -->
+        <div id="login-status" class="mt-3 hidden text-center text-sm"></div>
+        
+        <div class="login-footer">
+            &copy; 2024 <span>AEON</span>. All rights reserved.
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { authService } from '../js/services/AuthService.js';
+    import { router } from '../js/router.js';
+    import { showToast } from '../js/ui.js';
+    import { logger } from '../js/core/Logger.js';
+    import { sessionManager } from '../js/core/SessionManager.js';
+    
+    const log = logger.child('LoginPage');
+    
+    const form = document.getElementById('login-form');
+    const userIdInput = document.getElementById('user-id');
+    const passwordInput = document.getElementById('password');
+    const rememberMe = document.getElementById('remember-me');
+    const loginBtn = document.getElementById('login-btn');
+    const loginStatus = document.getElementById('login-status');
+    const forgotPassword = document.getElementById('forgot-password');
+    
+    // Initialize auth service
+    authService.init();
+    
+    // Check if already logged in
+    if (authService.isLoggedIn()) {
+        log.info('User already logged in, redirecting to dashboard');
+        router.navigate('/dashboard');
+        return;
+    }
+    
+    // Auto-fill if remembered
+    const savedUserId = localStorage.getItem('aeon_remember_user');
+    if (savedUserId) {
+        userIdInput.value = savedUserId;
+        rememberMe.checked = true;
+    }
+    
+    // Check if user data exists
+    async function checkUserData() {
+        try {
+            const hasData = await authService.hasUserData();
+            if (!hasData) {
+                loginStatus.textContent = '⚠️ No user data found. Please download master data first.';
+                loginStatus.className = 'mt-3 text-center text-sm text-yellow-600';
+                loginStatus.classList.remove('hidden');
+            }
+        } catch (error) {
+            log.error('Error checking user data:', error);
+        }
+    }
+    checkUserData();
+    
+    // Forgot password
+    forgotPassword.addEventListener('click', (e) => {
+        e.preventDefault();
+        showToast('Please contact your administrator to reset password', 'info');
+    });
+    
+    // Handle login
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const userId = userIdInput.value.trim();
+        const password = passwordInput.value.trim();
+        
+        if (!userId || !password) {
+            showToast('Please fill in all fields', 'warning');
+            return;
+        }
+        
+        // Show loading state
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = `
+            <span class="spinner" style="width: 20px; height: 20px; border-width: 2px;"></span>
+            LOGGING IN...
+        `;
+        loginStatus.classList.add('hidden');
+        
+        try {
+            // Attempt login via auth service
+            const result = await authService.login(userId, password, rememberMe.checked);
+            
+            if (result.success) {
+                // Save user ID if remembered
+                if (rememberMe.checked) {
+                    localStorage.setItem('aeon_remember_user', userId);
+                } else {
+                    localStorage.removeItem('aeon_remember_user');
+                }
+                
+                showToast(`Welcome back, ${result.user.name || result.user.username || userId}!`, 'success');
+                log.info(`Login successful: ${userId}`);
+                
+                // Navigate to dashboard
+                setTimeout(() => {
+                    router.navigate('/dashboard');
+                }, 500);
+            } else {
+                // Show error
+                loginStatus.textContent = result.error || 'Wrong User ID or Password';
+                loginStatus.className = 'mt-3 text-center text-sm text-red-600';
+                loginStatus.classList.remove('hidden');
+                
+                showToast(result.error || 'Wrong User ID or Password', 'error');
+                log.warning(`Login failed: ${userId} - ${result.error}`);
+                
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = `
+                    <span class="material-icons">login</span>
+                    LOGIN
+                `;
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            loginStatus.textContent = 'An error occurred. Please try again.';
+            loginStatus.className = 'mt-3 text-center text-sm text-red-600';
+            loginStatus.classList.remove('hidden');
+            showToast('An error occurred. Please try again.', 'error');
+            
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = `
+                <span class="material-icons">login</span>
+                LOGIN
+            `;
+        }
+    });
+    
+    // Enter key support
+    passwordInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            form.dispatchEvent(new Event('submit'));
+        }
+    });
+</script>
