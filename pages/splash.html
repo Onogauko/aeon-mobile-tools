@@ -17,32 +17,3 @@
         </div>
     </div>
 </div>
-
-<script type="module">
-    // Splash screen controller
-    const statusMessages = [
-        { text: 'Checking Configuration...', delay: 500 },
-        { text: 'Checking Local Database...', delay: 1000 },
-        { text: 'Loading Interface...', delay: 1500 }
-    ];
-    
-    const statusElement = document.getElementById('splash-status');
-    let currentIndex = 0;
-    
-    // Update status messages
-    function updateStatus() {
-        if (currentIndex < statusMessages.length) {
-            statusElement.textContent = statusMessages[currentIndex].text;
-            currentIndex++;
-            setTimeout(updateStatus, 500);
-        }
-    }
-    
-    // Start status updates
-    updateStatus();
-    
-    // Navigate to login after 2 seconds
-    setTimeout(() => {
-        window.router?.navigate('/login');
-    }, 2500);
-</script>
