@@ -1,30 +1,23 @@
-import { authService } from '../services/AuthService.js';
-
 export function initLoginPage() {
-    console.log("Login page initialized");
+
+    console.log("STEP 1");
 
     const form = document.getElementById("login-form");
 
+    console.log("FORM =", form);
+
     if (!form) {
-        console.error("Form login tidak ditemukan");
+        alert("FORM TIDAK DITEMUKAN");
         return;
     }
 
-    form.addEventListener("submit", async (e) => {
+    form.addEventListener("submit", function(e){
+
         e.preventDefault();
 
-        const userId = document.getElementById("user-id").value.trim();
-        const password = document.getElementById("password").value;
+        alert("LOGIN DIKLIK");
 
-        console.log("Login:", userId);
-
-        try {
-            const result = await authService.login(userId, password);
-
-            console.log(result);
-
-        } catch (err) {
-            console.error(err);
-        }
+        console.log("SUBMIT");
     });
+
 }
