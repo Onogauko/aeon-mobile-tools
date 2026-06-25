@@ -35,6 +35,7 @@ class Logger {
         this.history = [];
         this.maxHistory = 1000;
         this.loggers = new Map();
+        this._logging = false;
     }
 
     /**
@@ -125,34 +126,47 @@ class Logger {
     _log(level, message, data = null, module = null) {
         if (!this.enabled) return;
         if (level < this.level) return;
+        if (this._logging) return;
 
-        const logEntry = this._formatMessage(level, message, data, module);
-        
-        // Store in history
-        this.history.push(logEntry);
-        if (this.history.length > this.maxHistory) {
-            this.history.shift();
-        }
+        this._logging = true;
 
-        // Console output with color
-        const color = LEVEL_COLORS[level] || '#000000';
-        const style = `color: ${color}; font-weight: bold;`;
-        
-        switch (level) {
-            case LogLevel.DEBUG:
-                console.debug(`%c${logEntry.formatted}`, style);
-                break;
-            case LogLevel.INFO:
-                console.info(`%c${logEntry.formatted}`, style);
-                break;
-            case LogLevel.WARNING:
-                console.warn(`%c${logEntry.formatted}`, style);
-                break;
-            case LogLevel.ERROR:
-                console.error(`%c${logEntry.formatted}`, style);
-                break;
-            default:
-                console.log(`%c${logEntry.formatted}`, style);
+        try {
+            const logEntry = this._formatMessage(level, message, data, module);
+            
+            // Store in history
+            this.history.push(logEntry);
+            if (this.history.length > this.maxHistory) {
+                this.history.shift();
+            }
+
+            // Console output with color
+            const color = LEVEL_COLORS[level] || '#000000';
+            const style = `color: ${color}; font-weight: bold;`;
+            
+            switch (level) {
+                case LogLevel.DEBUG:
+                    console.debug(`%c${logEntry.formatted}`, style);
+                    break;
+                case LogLevel.INFO:
+                    console.info(`%c${logEntry.formatted}`, style);
+                    break;
+                case LogLevel.WARNING:
+                    console.warn(`%c${logEntry.formatted}`, style);
+                    break;
+                case LogLevel.ERROR:
+                    console.error(`%c${logEntry.formatted}`, style);
+                    break;
+                default:
+                    console.log(`%c${logEntry.formatted}`, style);
+            }
+
+            // eventBus.emit temporarily commented to prevent loop
+            // if (eventBus) {
+            //     eventBus.emit('log:added', logEntry);
+            // }
+
+        } finally {
+            this._logging = false;
         }
     }
 
