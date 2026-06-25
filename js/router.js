@@ -93,7 +93,7 @@ export class Router {
             
             if (routeName === 'login') {
                 const module = await import('./pages/login.js');
-                module.initLoginPage();
+                await module.initLoginPage();
             }
             
             // Update current route
