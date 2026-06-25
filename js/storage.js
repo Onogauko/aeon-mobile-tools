@@ -263,7 +263,7 @@ class LocalStorageHelper {
 }
 
 // Create instances
-export const indexedDB = new IndexedDBHelper();
+export const dbHelper = new IndexedDBHelper();
 export const localStore = new LocalStorageHelper();
 
 /**
@@ -272,7 +272,7 @@ export const localStore = new LocalStorageHelper();
 export async function initStorage() {
     try {
         // Initialize IndexedDB
-        await indexedDB.init();
+        await dbHelper.init();
         console.log('[Storage] Storage system initialized');
         return true;
     } catch (error) {
@@ -283,7 +283,7 @@ export async function initStorage() {
 
 // Export default
 export default {
-    indexedDB,
+    dbHelper,
     localStore,
     initStorage,
     StorageType
