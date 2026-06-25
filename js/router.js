@@ -91,6 +91,11 @@ export class Router {
                 module.initSplash();
             }
             
+            if (routeName === 'login') {
+                const module = await import('./pages/login.js');
+                module.initLoginPage();
+            }
+            
             // Update current route
             this.currentRoute = path;
             
