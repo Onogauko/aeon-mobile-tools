@@ -69,7 +69,7 @@ class ErrorHandler {
             }
 
             // Log error
-            log.error(`[${context.type || 'error'}] ${errorEntry.message}`, {
+            console.error(`[${context.type || 'error'}] ${errorEntry.message}`, {
                 context,
                 stack: error?.stack
             });
@@ -82,7 +82,7 @@ class ErrorHandler {
                 try {
                     callback(errorEntry);
                 } catch (cbError) {
-                    log.error('Error in error callback:', cbError);
+                    console.error('Error in error callback:', cbError);
                 }
             }
 
@@ -95,7 +95,7 @@ class ErrorHandler {
             return errorEntry;
 
         } catch (handlerError) {
-            log.error('Error in error handler:', handlerError);
+            console.error('Error in error handler:', handlerError);
         } finally {
             this.isHandling = false;
         }
