@@ -147,7 +147,7 @@ class LogViewer {
      */
     clear() {
         this.logs = [];
-        log.info('Logs cleared');
+        console.info('Logs cleared');
     }
 
     /**
@@ -191,7 +191,7 @@ class LogViewer {
         a.download = `logs_${new Date().toISOString().slice(0,10)}.${format}`;
         a.click();
         URL.revokeObjectURL(url);
-        log.info(`Logs downloaded as ${format}`);
+        console.info(`Logs downloaded as ${format}`);
     }
 }
 
