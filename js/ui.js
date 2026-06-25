@@ -20,6 +20,7 @@ export async function loadPage(pageName) {
         const template = document.createElement('template');
         template.innerHTML = html;
         
+        /*
         // Execute any scripts in the page
         const scripts = template.content.querySelectorAll('script');
         scripts.forEach(script => {
@@ -31,6 +32,9 @@ export async function loadPage(pageName) {
             }
             document.body.appendChild(newScript);
         });
+        */
+        
+        template.content.querySelectorAll('script').forEach(script => script.remove());
         
         return template.content;
         
