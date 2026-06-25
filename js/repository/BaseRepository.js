@@ -3,7 +3,7 @@
  * @module repository/BaseRepository
  */
 
-import { indexedDB } from '../storage.js';
+import { dbHelper } from '../storage.js';
 import { logger } from '../core/Logger.js';
 import { cacheManager } from '../core/CacheManager.js';
 import { eventBus } from '../core/EventBus.js';
@@ -37,7 +37,7 @@ export class BaseRepository {
         }
 
         this.logger.debug(`Fetching all from ${this.storeName}`);
-        const data = await indexedDB.getAll(this.storeName);
+        const data = await dbHelper.getAll(this.storeName);
         
         if (this.useCache) {
             cacheManager.set(cacheKey, data, this.cacheTTL);
@@ -61,7 +61,7 @@ export class BaseRepository {
         }
 
         this.logger.debug(`Finding by ID: ${id} from ${this.storeName}`);
-        const data = await indexedDB.get(this.storeName, id);
+        const data = await dbHelper.get(this.storeName, id);
         
         if (this.useCache && data) {
             cacheManager.set(cacheKey, data, this.cacheTTL);
@@ -85,7 +85,7 @@ export class BaseRepository {
         }
 
         this.logger.debug(`Finding by index: ${indexName}=${value} from ${this.storeName}`);
-        const data = await indexedDB.getAll(this.storeName, indexName, value);
+        const data = await dbHelper.getAll(this.storeName, indexName, value);
         
         if (this.useCache) {
             cacheManager.set(cacheKey, data, this.cacheTTL);
@@ -107,7 +107,7 @@ export class BaseRepository {
      */
     async save(data) {
         this.logger.debug(`Saving to ${this.storeName}`);
-        const result = await indexedDB.add(this.storeName, data);
+        const result = await dbHelper.add(this.storeName, data);
         
         // Invalidate cache
         if (this.useCache) {
@@ -141,7 +141,7 @@ export class BaseRepository {
         // Save each record
         const results = [];
         for (const data of dataArray) {
-            const id = await indexedDB.add(this.storeName, data);
+            const id = await dbHelper.add(this.storeName, data);
             results.push(id);
         }
         
@@ -165,7 +165,7 @@ export class BaseRepository {
      */
     async update(data) {
         this.logger.debug(`Updating in ${this.storeName}`);
-        const result = await indexedDB.update(this.storeName, data);
+        const result = await dbHelper.update(this.storeName, data);
         
         // Invalidate cache
         if (this.useCache) {
@@ -186,7 +186,7 @@ export class BaseRepository {
      */
     async delete(id) {
         this.logger.debug(`Deleting ID ${id} from ${this.storeName}`);
-        const result = await indexedDB.delete(this.storeName, id);
+        const result = await dbHelper.delete(this.storeName, id);
         
         // Invalidate cache
         if (this.useCache) {
@@ -207,7 +207,7 @@ export class BaseRepository {
      */
     async clear() {
         this.logger.debug(`Clearing ${this.storeName}`);
-        const result = await indexedDB.clear(this.storeName);
+        const result = await dbHelper.clear(this.storeName);
         
         // Invalidate cache
         if (this.useCache) {
@@ -236,7 +236,7 @@ export class BaseRepository {
             }
         }
 
-        const count = await indexedDB.count(this.storeName);
+        const count = await dbHelper.count(this.storeName);
         
         if (this.useCache) {
             cacheManager.set(cacheKey, count, this.cacheTTL);
