@@ -53,8 +53,8 @@ async function initApp() {
         await initStorage();
         logger.info('Storage initialized');
 
-        await settingRepository.initDefaults();
-        logger.info('Default settings initialized');
+        // await settingRepository.initDefaults();
+        // logger.info('Default settings initialized');
 
         sessionManager.init();
         logger.info('Session manager initialized');
