@@ -11,6 +11,7 @@ import { userRepository } from '../repository/UserRepository.js';
 import { historyRepository } from '../repository/HistoryRepository.js';
 import { settingRepository } from '../repository/SettingRepository.js';
 
+// Create child logger once
 const log = logger.child('DownloadService');
 
 export const DOWNLOAD_STEPS = [
@@ -50,6 +51,8 @@ export const DOWNLOAD_STEPS = [
 
 class DownloadService {
     constructor() {
+        // Use existing log, don't create another child
+        this.log = log;
         this.isRunning = false;
         this.currentStep = 0;
         this.progress = 0;
@@ -58,7 +61,6 @@ class DownloadService {
         this.startTime = null;
         this.endTime = null;
         this.retryCount = 0;
-        this.log = log.child('DownloadService');
     }
 
     async isDownloadNeeded() {
@@ -84,7 +86,7 @@ class DownloadService {
             
             return { needed: false, reason: 'Data is up to date' };
         } catch (error) {
-            log.error('Error checking download need:', error);
+            this.log.error('Error checking download need:', error);
             return { needed: true, reason: 'Error checking, forcing download' };
         }
     }
@@ -97,7 +99,7 @@ class DownloadService {
         if (!force) {
             const needCheck = await this.isDownloadNeeded();
             if (!needCheck.needed) {
-                log.info(`Download not needed: ${needCheck.reason}`);
+                this.log.info(`Download not needed: ${needCheck.reason}`);
                 return {
                     success: true,
                     skipped: true,
@@ -116,7 +118,7 @@ class DownloadService {
         this.retryCount = 0;
 
         eventBus.emit(Events.DOWNLOAD_STARTED, { force });
-        log.info(`Download started${force ? ' (force)' : ''}`);
+        this.log.info(`Download started${force ? ' (force)' : ''}`);
 
         try {
             const serverIP = await settingRepository.getServerIP();
@@ -144,14 +146,14 @@ class DownloadService {
                         break;
                     } else {
                         connectionError = connectionTest.error;
-                        log.warning(`Connection attempt ${attempt} failed: ${connectionError}`);
+                        this.log.warning(`Connection attempt ${attempt} failed: ${connectionError}`);
                         if (attempt < 3) {
                             await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
                         }
                     }
                 } catch (error) {
                     connectionError = error.message;
-                    log.warning(`Connection attempt ${attempt} error: ${connectionError}`);
+                    this.log.warning(`Connection attempt ${attempt} error: ${connectionError}`);
                     if (attempt < 3) {
                         await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
                     }
@@ -169,10 +171,10 @@ class DownloadService {
                 if (storeData.store_name) {
                     await settingRepository.saveStoreName(storeData.store_name);
                 }
-                log.info(`Store: ${storeData.store_name || 'Unknown'} (${storeData.store_code || 'N/A'})`);
+                this.log.info(`Store: ${storeData.store_name || 'Unknown'} (${storeData.store_code || 'N/A'})`);
             }
 
-            log.info('Connection to AEON Server successful');
+            this.log.info('Connection to AEON Server successful');
 
             const totalSteps = DOWNLOAD_STEPS.length;
             let totalRecords = 0;
@@ -209,7 +211,7 @@ class DownloadService {
                     } catch (error) {
                         downloadError = error;
                         stepRetryCount++;
-                        log.warning(`Retry ${attempt}/3 for ${step.id}: ${error.message}`);
+                        this.log.warning(`Retry ${attempt}/3 for ${step.id}: ${error.message}`);
                         if (attempt < 3) {
                             await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
                         }
@@ -267,10 +269,10 @@ class DownloadService {
                         duration: stepDuration
                     });
 
-                    log.info(`✓ Completed ${step.id}: ${this.results[step.id].count} records`);
+                    this.log.info(`✓ Completed ${step.id}: ${this.results[step.id].count} records`);
 
                 } catch (error) {
-                    log.error(`Error saving ${step.id}:`, error);
+                    this.log.error(`Error saving ${step.id}:`, error);
                     this.results[step.id] = {
                         success: false,
                         error: error.message,
@@ -323,7 +325,7 @@ class DownloadService {
                 timestamp: new Date().toISOString()
             });
 
-            log.info(`Download complete: ${totalRecords} records`);
+            this.log.info(`Download complete: ${totalRecords} records`);
 
             if (onProgress) {
                 onProgress({
@@ -356,7 +358,7 @@ class DownloadService {
             this.error = error.message;
             this.endTime = Date.now();
 
-            log.error('Download error:', error);
+            this.log.error('Download error:', error);
 
             eventBus.emit(Events.DOWNLOAD_FAILED, {
                 error: error.message
@@ -413,7 +415,7 @@ class DownloadService {
         this.startTime = null;
         this.endTime = null;
         this.retryCount = 0;
-        log.info('Download state reset');
+        this.log.info('Download state reset');
     }
 
     async hasData() {
@@ -422,7 +424,7 @@ class DownloadService {
             const userCount = await userRepository.count();
             return articleCount > 0 || userCount > 0;
         } catch (error) {
-            log.error('Error checking data:', error);
+            this.log.error('Error checking data:', error);
             return false;
         }
     }
@@ -447,7 +449,7 @@ class DownloadService {
                 isOnline: navigator.onLine
             };
         } catch (error) {
-            log.error('Error getting download stats:', error);
+            this.log.error('Error getting download stats:', error);
             return null;
         }
     }
@@ -465,7 +467,7 @@ class DownloadService {
                 error: result.error
             };
         } catch (error) {
-            log.error('Error checking server connection:', error);
+            this.log.error('Error checking server connection:', error);
             return { connected: false, error: error.message };
         }
     }

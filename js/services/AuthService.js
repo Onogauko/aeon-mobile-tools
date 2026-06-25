@@ -9,11 +9,13 @@ import { sessionManager } from '../core/SessionManager.js';
 import { logger } from '../core/Logger.js';
 import { eventBus, Events } from '../core/EventBus.js';
 
+// Create child logger once
 const log = logger.child('AuthService');
 
 class AuthService {
     constructor() {
-        this.log = log.child('AuthService');
+        // Use existing log, don't create another child
+        this.log = log;
         this.isInitialized = false;
     }
 
@@ -24,7 +26,7 @@ class AuthService {
         if (this.isInitialized) return;
         sessionManager.init();
         this.isInitialized = true;
-        log.info('AuthService initialized');
+        this.log.info('AuthService initialized');
     }
 
     /**
@@ -39,7 +41,7 @@ class AuthService {
             // Check if user data exists
             const hasUsers = await userRepository.hasData();
             if (!hasUsers) {
-                log.warning('No user data found. Please download master data first.');
+                this.log.warning('No user data found. Please download master data first.');
                 return { 
                     success: false, 
                     error: 'No user data found. Please download master data first.' 
@@ -60,7 +62,7 @@ class AuthService {
                     { userId, user: result.user }
                 );
 
-                log.info(`User logged in: ${userId}`);
+                this.log.info(`User logged in: ${userId}`);
                 
                 // Emit event
                 eventBus.emit(Events.AUTH_LOGIN, { user: result.user });
@@ -74,13 +76,13 @@ class AuthService {
                     { userId, error: result.error }
                 );
 
-                log.warning(`Failed login attempt: ${userId}`);
+                this.log.warning(`Failed login attempt: ${userId}`);
                 
                 return { success: false, error: result.error || 'Wrong User ID or Password' };
             }
 
         } catch (error) {
-            log.error('Login error:', error);
+            this.log.error('Login error:', error);
             return { success: false, error: error.message };
         }
     }
@@ -95,7 +97,7 @@ class AuthService {
         // Log to history
         historyRepository.logLogout(`User ${user?.userId || 'unknown'} logged out`);
         
-        log.info('User logged out');
+        this.log.info('User logged out');
         
         // Emit event
         eventBus.emit(Events.AUTH_LOGOUT, { user: user });
@@ -131,7 +133,7 @@ class AuthService {
         try {
             return await userRepository.hasData();
         } catch (error) {
-            log.error('Error checking user data:', error);
+            this.log.error('Error checking user data:', error);
             return false;
         }
     }
@@ -143,7 +145,7 @@ class AuthService {
         try {
             return await userRepository.count();
         } catch (error) {
-            log.error('Error getting user count:', error);
+            this.log.error('Error getting user count:', error);
             return 0;
         }
     }

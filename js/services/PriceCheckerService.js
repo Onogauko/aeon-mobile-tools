@@ -8,6 +8,7 @@ import { historyRepository } from '../repository/HistoryRepository.js';
 import { logger } from '../core/Logger.js';
 import { eventBus, Events } from '../core/EventBus.js';
 
+// Create child logger once
 const log = logger.child('PriceCheckerService');
 
 // Recent search key
@@ -18,7 +19,8 @@ const MAX_RECENT_SCANS = 20;
 
 class PriceCheckerService {
     constructor() {
-        this.log = log.child('PriceCheckerService');
+        // Use existing log, don't create another child
+        this.log = log;
         this.isSearching = false;
         this.dataAvailable = false;
     }
@@ -31,7 +33,7 @@ class PriceCheckerService {
             this.dataAvailable = await articleRepository.hasData();
             return this.dataAvailable;
         } catch (error) {
-            log.error('Error checking data availability:', error);
+            this.log.error('Error checking data availability:', error);
             return false;
         }
     }
@@ -105,7 +107,7 @@ class PriceCheckerService {
             return result;
 
         } catch (error) {
-            log.error('Search error:', error);
+            this.log.error('Search error:', error);
             eventBus.emit(Events.PRICE_CHECK_ERROR, {
                 query: searchTerm,
                 error: error.message
@@ -149,7 +151,7 @@ class PriceCheckerService {
             
             return product;
         } catch (error) {
-            log.error('Error getting by barcode:', error);
+            this.log.error('Error getting by barcode:', error);
             return null;
         }
     }
@@ -176,7 +178,7 @@ class PriceCheckerService {
             
             return product;
         } catch (error) {
-            log.error('Error getting by SKU:', error);
+            this.log.error('Error getting by SKU:', error);
             return null;
         }
     }
@@ -189,7 +191,7 @@ class PriceCheckerService {
             const data = localStorage.getItem(RECENT_SEARCH_KEY);
             return data ? JSON.parse(data) : [];
         } catch (error) {
-            log.error('Error getting recent searches:', error);
+            this.log.error('Error getting recent searches:', error);
             return [];
         }
     }
@@ -200,9 +202,9 @@ class PriceCheckerService {
     clearRecentSearches() {
         try {
             localStorage.removeItem(RECENT_SEARCH_KEY);
-            log.info('Recent searches cleared');
+            this.log.info('Recent searches cleared');
         } catch (error) {
-            log.error('Error clearing recent searches:', error);
+            this.log.error('Error clearing recent searches:', error);
         }
     }
 
@@ -214,7 +216,7 @@ class PriceCheckerService {
             const data = localStorage.getItem(RECENT_SCANS_KEY);
             return data ? JSON.parse(data) : [];
         } catch (error) {
-            log.error('Error getting recent scans:', error);
+            this.log.error('Error getting recent scans:', error);
             return [];
         }
     }
@@ -225,9 +227,9 @@ class PriceCheckerService {
     clearRecentScans() {
         try {
             localStorage.removeItem(RECENT_SCANS_KEY);
-            log.info('Recent scans cleared');
+            this.log.info('Recent scans cleared');
         } catch (error) {
-            log.error('Error clearing recent scans:', error);
+            this.log.error('Error clearing recent scans:', error);
         }
     }
 
@@ -260,7 +262,7 @@ class PriceCheckerService {
             
             localStorage.setItem(RECENT_SEARCH_KEY, JSON.stringify(recent));
         } catch (error) {
-            log.error('Error saving recent search:', error);
+            this.log.error('Error saving recent search:', error);
         }
     }
 
@@ -290,7 +292,7 @@ class PriceCheckerService {
             
             localStorage.setItem(RECENT_SCANS_KEY, JSON.stringify(scans));
         } catch (error) {
-            log.error('Error adding recent scan:', error);
+            this.log.error('Error adding recent scan:', error);
         }
     }
 

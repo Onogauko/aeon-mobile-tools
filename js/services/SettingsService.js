@@ -7,11 +7,13 @@ import { settingRepository } from '../repository/SettingRepository.js';
 import { logger } from '../core/Logger.js';
 import { eventBus, Events } from '../core/EventBus.js';
 
+// Create child logger once
 const log = logger.child('SettingsService');
 
 class SettingsService {
     constructor() {
-        this.log = log.child('SettingsService');
+        // Use existing log, don't create another child
+        this.log = log;
         this.cachedSettings = null;
     }
 
@@ -28,7 +30,7 @@ class SettingsService {
     async saveServerIP(ip) {
         await settingRepository.saveServerIP(ip);
         eventBus.emit(Events.SERVER_IP_CHANGED, { ip });
-        log.info(`Server IP updated: ${ip}`);
+        this.log.info(`Server IP updated: ${ip}`);
     }
 
     /**
@@ -86,7 +88,7 @@ class SettingsService {
     async setAutoSync(enabled) {
         await settingRepository.set('auto_sync', enabled);
         eventBus.emit(Events.SETTINGS_CHANGED, { key: 'auto_sync', value: enabled });
-        log.info(`Auto sync set to: ${enabled}`);
+        this.log.info(`Auto sync set to: ${enabled}`);
     }
 
     /**
@@ -102,7 +104,7 @@ class SettingsService {
     async setSyncInterval(interval) {
         await settingRepository.set('sync_interval', interval);
         eventBus.emit(Events.SETTINGS_CHANGED, { key: 'sync_interval', value: interval });
-        log.info(`Sync interval set to: ${interval}ms`);
+        this.log.info(`Sync interval set to: ${interval}ms`);
     }
 
     /**
@@ -118,7 +120,7 @@ class SettingsService {
     async setNotifications(enabled) {
         await settingRepository.set('notifications', enabled);
         eventBus.emit(Events.SETTINGS_CHANGED, { key: 'notifications', value: enabled });
-        log.info(`Notifications set to: ${enabled}`);
+        this.log.info(`Notifications set to: ${enabled}`);
     }
 
     /**
@@ -134,7 +136,7 @@ class SettingsService {
     async setTheme(theme) {
         await settingRepository.set('theme', theme);
         eventBus.emit(Events.SETTINGS_CHANGED, { key: 'theme', value: theme });
-        log.info(`Theme set to: ${theme}`);
+        this.log.info(`Theme set to: ${theme}`);
     }
 
     /**
@@ -149,7 +151,7 @@ class SettingsService {
      */
     async saveDatabaseSize(size) {
         await settingRepository.saveDatabaseSize(size);
-        log.info(`Database size updated: ${size} MB`);
+        this.log.info(`Database size updated: ${size} MB`);
     }
 
     /**
@@ -164,7 +166,7 @@ class SettingsService {
      */
     async saveTotalRecords(count) {
         await settingRepository.saveTotalRecords(count);
-        log.info(`Total records updated: ${count}`);
+        this.log.info(`Total records updated: ${count}`);
     }
 
     /**
@@ -179,7 +181,7 @@ class SettingsService {
      */
     async updateDatabaseVersion(version) {
         await settingRepository.saveDatabaseVersion(version);
-        log.info(`Database version updated to: ${version}`);
+        this.log.info(`Database version updated to: ${version}`);
     }
 
     /**
@@ -253,7 +255,7 @@ class SettingsService {
     async clearAll() {
         await settingRepository.clearAll();
         this.cachedSettings = null;
-        log.info('All settings cleared');
+        this.log.info('All settings cleared');
     }
 
     /**
@@ -283,7 +285,7 @@ class SettingsService {
         
         await settingRepository.saveAllSettings(defaults);
         this.cachedSettings = defaults;
-        log.info('Settings reset to defaults');
+        this.log.info('Settings reset to defaults');
         
         return defaults;
     }
@@ -325,7 +327,7 @@ class SettingsService {
         if (stats.databaseVersion) {
             await this.updateDatabaseVersion(stats.databaseVersion);
         }
-        log.info('Metadata updated from download');
+        this.log.info('Metadata updated from download');
     }
 
     // ============================================
@@ -339,7 +341,7 @@ class SettingsService {
     async setScannerSound(enabled) {
         await settingRepository.set('scanner_sound', enabled);
         eventBus.emit(Events.SETTINGS_CHANGED, { key: 'scanner_sound', value: enabled });
-        log.info(`Scanner sound set to: ${enabled}`);
+        this.log.info(`Scanner sound set to: ${enabled}`);
     }
 
     async getScannerVibration() {
@@ -349,7 +351,7 @@ class SettingsService {
     async setScannerVibration(enabled) {
         await settingRepository.set('scanner_vibration', enabled);
         eventBus.emit(Events.SETTINGS_CHANGED, { key: 'scanner_vibration', value: enabled });
-        log.info(`Scanner vibration set to: ${enabled}`);
+        this.log.info(`Scanner vibration set to: ${enabled}`);
     }
 
     async getContinuousScan() {
@@ -359,7 +361,7 @@ class SettingsService {
     async setContinuousScan(enabled) {
         await settingRepository.set('continuous_scan', enabled);
         eventBus.emit(Events.SETTINGS_CHANGED, { key: 'continuous_scan', value: enabled });
-        log.info(`Continuous scan set to: ${enabled}`);
+        this.log.info(`Continuous scan set to: ${enabled}`);
     }
 
     async getAutoFocus() {
@@ -369,7 +371,7 @@ class SettingsService {
     async setAutoFocus(enabled) {
         await settingRepository.set('auto_focus', enabled);
         eventBus.emit(Events.SETTINGS_CHANGED, { key: 'auto_focus', value: enabled });
-        log.info(`Auto focus set to: ${enabled}`);
+        this.log.info(`Auto focus set to: ${enabled}`);
     }
 
     async getTorchDefault() {
@@ -379,7 +381,7 @@ class SettingsService {
     async setTorchDefault(enabled) {
         await settingRepository.set('torch_default', enabled);
         eventBus.emit(Events.SETTINGS_CHANGED, { key: 'torch_default', value: enabled });
-        log.info(`Torch default set to: ${enabled}`);
+        this.log.info(`Torch default set to: ${enabled}`);
     }
 
     async get(key, defaultValue) {
@@ -389,7 +391,7 @@ class SettingsService {
     async set(key, value) {
         await settingRepository.set(key, value);
         eventBus.emit(Events.SETTINGS_CHANGED, { key, value });
-        log.info(`Setting saved: ${key} = ${value}`);
+        this.log.info(`Setting saved: ${key} = ${value}`);
     }
 }
 

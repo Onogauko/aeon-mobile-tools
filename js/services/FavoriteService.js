@@ -7,11 +7,13 @@ import { favoriteRepository } from '../repository/FavoriteRepository.js';
 import { logger } from '../core/Logger.js';
 import { eventBus } from '../core/EventBus.js';
 
+// Create child logger once
 const log = logger.child('FavoriteService');
 
 class FavoriteService {
     constructor() {
-        this.log = log.child('FavoriteService');
+        // Use existing log, don't create another child
+        this.log = log;
     }
 
     /**
