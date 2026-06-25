@@ -3,7 +3,7 @@
  * @module app
  */
 
-import { Router } from './router.js';
+import { router } from './router.js';
 import { initPWA } from './pwa.js';
 import { initStorage } from './storage.js';
 import { logger } from './core/Logger.js';
@@ -65,7 +65,6 @@ async function initApp() {
         await initPWA();
         logger.info('PWA initialized');
 
-        const router = new Router();
         await router.init();
         logger.info('Router initialized');
 
@@ -75,9 +74,9 @@ async function initApp() {
             eventBus.emit('session:restored', { user: user });
         }
 
-        if (router.routes) {
-            router.routes['/api-inspector'] = 'api-inspector';
-        }
+        // if (router.routes) {
+        //     router.routes['/api-inspector'] = 'api-inspector';
+        // }
 
         App.initialized = true;
         logger.info('Application ready!');
