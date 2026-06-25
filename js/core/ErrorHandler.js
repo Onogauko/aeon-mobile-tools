@@ -42,7 +42,7 @@ class ErrorHandler {
         });
 
         this.initialized = true;
-        log.info('ErrorHandler initialized');
+        console.info('ErrorHandler initialized');
     }
 
     /**
@@ -187,7 +187,7 @@ class ErrorHandler {
      */
     clearErrors() {
         this.errors = [];
-        log.info('Errors cleared');
+        console.info('Errors cleared');
     }
 
     /**
