@@ -32,31 +32,7 @@ class LogViewer {
             }
         });
 
-        // Override logger to capture logs
-        const originalDebug = logger.debug.bind(logger);
-        const originalInfo = logger.info.bind(logger);
-        const originalWarning = logger.warning.bind(logger);
-        const originalError = logger.error.bind(logger);
-
-        logger.debug = (message, data, module) => {
-            originalDebug(message, data, module);
-            eventBus.emit('log:added', { level: 'DEBUG', message, data, module, timestamp: new Date().toISOString() });
-        };
-        logger.info = (message, data, module) => {
-            originalInfo(message, data, module);
-            eventBus.emit('log:added', { level: 'INFO', message, data, module, timestamp: new Date().toISOString() });
-        };
-        logger.warning = (message, data, module) => {
-            originalWarning(message, data, module);
-            eventBus.emit('log:added', { level: 'WARNING', message, data, module, timestamp: new Date().toISOString() });
-        };
-        logger.error = (message, data, module) => {
-            originalError(message, data, module);
-            eventBus.emit('log:added', { level: 'ERROR', message, data, module, timestamp: new Date().toISOString() });
-        };
-
         this.initialized = true;
-        log.info('LogViewer initialized');
     }
 
     /**
