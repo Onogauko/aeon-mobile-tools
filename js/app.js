@@ -75,7 +75,9 @@ async function initApp() {
             eventBus.emit('session:restored', { user: user });
         }
 
-        router.routes['/api-inspector'] = 'api-inspector';
+        if (router.routes) {
+            router.routes['/api-inspector'] = 'api-inspector';
+        }
 
         App.initialized = true;
         logger.info('Application ready!');
