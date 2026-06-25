@@ -7,6 +7,64 @@ import { logger } from './Logger.js';
 
 const log = logger.child('EventBus');
 
+// ============================================
+// EVENT NAMES - DI EKSPOR SEBAGAI OBJECT
+// ============================================
+
+export const Events = {
+    // Download events
+    DOWNLOAD_STARTED: 'download:started',
+    DOWNLOAD_PROGRESS: 'download:progress',
+    DOWNLOAD_COMPLETED: 'download:completed',
+    DOWNLOAD_FAILED: 'download:failed',
+    
+    // Price Checker events
+    PRICE_CHECK_START: 'price:check:start',
+    PRICE_CHECK_COMPLETE: 'price:check:complete',
+    PRICE_CHECK_NOT_FOUND: 'price:check:notfound',
+    PRICE_CHECK_ERROR: 'price:check:error',
+    
+    // Scanner events
+    SCAN_START: 'scan:start',
+    SCAN_SUCCESS: 'scan:success',
+    SCAN_ERROR: 'scan:error',
+    SCAN_CANCEL: 'scan:cancel',
+    SCAN_CONTINUOUS_RESUME: 'scan:continuous:resume',
+    SCAN_RECORDED: 'scan:recorded',
+    SCAN_AUTOSTOPPED: 'scan:autostopped',
+    
+    // Auth events
+    AUTH_LOGIN: 'auth:login',
+    AUTH_LOGOUT: 'auth:logout',
+    AUTH_ERROR: 'auth:error',
+    
+    // Settings events
+    SETTINGS_CHANGED: 'settings:changed',
+    SERVER_IP_CHANGED: 'settings:server:changed',
+    
+    // Data events
+    DATA_SYNCED: 'data:synced',
+    DATA_CLEARED: 'data:cleared',
+    
+    // Favorite events
+    FAVORITE_ADDED: 'favorite:added',
+    FAVORITE_REMOVED: 'favorite:removed',
+    FAVORITE_CLEARED: 'favorite:cleared',
+    
+    // History events
+    HISTORY_ADDED: 'history:added',
+    HISTORY_CLEARED: 'history:cleared',
+    
+    // Network events
+    NETWORK_CHANGED: 'network:changed',
+    NETWORK_STATUS: 'network:status',
+    NETWORK_SERVER: 'network:server',
+    
+    // App events
+    APP_READY: 'app:ready',
+    SESSION_RESTORED: 'session:restored'
+};
+
 class EventBus {
     constructor() {
         this.events = new Map();
@@ -211,59 +269,10 @@ class EventBus {
             }
         });
     }
-
-    // ============================================
-    // EVENT NAMES
-    // ============================================
-
-    // Download events
-    DOWNLOAD_STARTED = 'download:started';
-    DOWNLOAD_PROGRESS = 'download:progress';
-    DOWNLOAD_COMPLETED = 'download:completed';
-    DOWNLOAD_FAILED = 'download:failed';
-    
-    // Price Checker events
-    PRICE_CHECK_START = 'price:check:start';
-    PRICE_CHECK_COMPLETE = 'price:check:complete';
-    PRICE_CHECK_NOT_FOUND = 'price:check:notfound';
-    PRICE_CHECK_ERROR = 'price:check:error';
-    
-    // Scanner events
-    SCAN_START = 'scan:start';
-    SCAN_SUCCESS = 'scan:success';
-    SCAN_ERROR = 'scan:error';
-    SCAN_CANCEL = 'scan:cancel';
-    SCAN_CONTINUOUS_RESUME = 'scan:continuous:resume';
-    SCAN_RECORDED = 'scan:recorded';
-    
-    // Auth events
-    AUTH_LOGIN = 'auth:login';
-    AUTH_LOGOUT = 'auth:logout';
-    AUTH_ERROR = 'auth:error';
-    
-    // Settings events
-    SETTINGS_CHANGED = 'settings:changed';
-    SERVER_IP_CHANGED = 'settings:server:changed';
-    
-    // Data events
-    DATA_SYNCED = 'data:synced';
-    DATA_CLEARED = 'data:cleared';
-    
-    // Favorite events
-    FAVORITE_ADDED = 'favorite:added';
-    FAVORITE_REMOVED = 'favorite:removed';
-    FAVORITE_CLEARED = 'favorite:cleared';
-    
-    // History events
-    HISTORY_ADDED = 'history:added';
-    HISTORY_CLEARED = 'history:cleared';
-    
-    // App events
-    APP_READY = 'app:ready';
-    SESSION_RESTORED = 'session:restored';
 }
 
 // Singleton instance
 export const eventBus = new EventBus();
 
+// Export default
 export default eventBus;

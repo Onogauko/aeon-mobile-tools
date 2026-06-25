@@ -29,9 +29,6 @@ class AuthService {
 
     /**
      * Login user (offline)
-     * @param {string} userId - User ID
-     * @param {string} password - User password
-     * @param {boolean} remember - Remember me flag
      */
     async login(userId, password, remember = false) {
         if (!userId || !password) {

@@ -277,7 +277,8 @@ class SettingsService {
             scanner_vibration: true,
             continuous_scan: false,
             auto_focus: true,
-            torch_default: false
+            torch_default: false,
+            auto_stop: false
         };
         
         await settingRepository.saveAllSettings(defaults);
@@ -331,84 +332,64 @@ class SettingsService {
     // SCANNER SETTINGS
     // ============================================
 
-    /**
-     * Get scanner sound setting
-     */
     async getScannerSound() {
         return settingRepository.get('scanner_sound', true);
     }
 
-    /**
-     * Set scanner sound
-     */
     async setScannerSound(enabled) {
         await settingRepository.set('scanner_sound', enabled);
         eventBus.emit(Events.SETTINGS_CHANGED, { key: 'scanner_sound', value: enabled });
         log.info(`Scanner sound set to: ${enabled}`);
     }
 
-    /**
-     * Get scanner vibration setting
-     */
     async getScannerVibration() {
         return settingRepository.get('scanner_vibration', true);
     }
 
-    /**
-     * Set scanner vibration
-     */
     async setScannerVibration(enabled) {
         await settingRepository.set('scanner_vibration', enabled);
         eventBus.emit(Events.SETTINGS_CHANGED, { key: 'scanner_vibration', value: enabled });
         log.info(`Scanner vibration set to: ${enabled}`);
     }
 
-    /**
-     * Get continuous scan setting
-     */
     async getContinuousScan() {
         return settingRepository.get('continuous_scan', false);
     }
 
-    /**
-     * Set continuous scan
-     */
     async setContinuousScan(enabled) {
         await settingRepository.set('continuous_scan', enabled);
         eventBus.emit(Events.SETTINGS_CHANGED, { key: 'continuous_scan', value: enabled });
         log.info(`Continuous scan set to: ${enabled}`);
     }
 
-    /**
-     * Get auto focus setting
-     */
     async getAutoFocus() {
         return settingRepository.get('auto_focus', true);
     }
 
-    /**
-     * Set auto focus
-     */
     async setAutoFocus(enabled) {
         await settingRepository.set('auto_focus', enabled);
         eventBus.emit(Events.SETTINGS_CHANGED, { key: 'auto_focus', value: enabled });
         log.info(`Auto focus set to: ${enabled}`);
     }
 
-    /**
-     * Get torch default setting
-     */
     async getTorchDefault() {
         return settingRepository.get('torch_default', false);
     }
 
-    /**
-     * Set torch default
-     */
     async setTorchDefault(enabled) {
         await settingRepository.set('torch_default', enabled);
         eventBus.emit(Events.SETTINGS_CHANGED, { key: 'torch_default', value: enabled });
         log.info(`Torch default set to: ${enabled}`);
+    }
+
+    async get(key, defaultValue) {
+        return settingRepository.get(key, defaultValue);
+    }
+
+    async set(key, value) {
+        await settingRepository.set(key, value);
+        eventBus.emit(Events.SETTINGS_CHANGED, { key, value });
+        log.info(`Setting saved: ${key} = ${value}`);
     }
 }
 
