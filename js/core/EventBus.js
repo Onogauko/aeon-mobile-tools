@@ -141,8 +141,6 @@ class EventBus {
      * Emit an event
      */
     emit(event, data = null) {
-        log.debug(`Event emitted: ${event}`, data);
-
         if (this.events.has(event)) {
             const listeners = this.events.get(event);
             for (const listener of listeners) {
@@ -171,8 +169,6 @@ class EventBus {
      * Emit event asynchronously
      */
     async emitAsync(event, data = null) {
-        log.debug(`Event emitted async: ${event}`, data);
-
         const promises = [];
 
         if (this.events.has(event)) {
