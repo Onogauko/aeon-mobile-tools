@@ -147,7 +147,8 @@ class EventBus {
                 try {
                     listener.callback.call(listener.context, data);
                 } catch (error) {
-                    log.error(`Error in event listener for ${event}:`, error);
+                    // log.error(`Error in event listener for ${event}:`, error);
+                    console.error(`Error in event listener for ${event}:`, error);
                 }
             }
         }
@@ -158,7 +159,8 @@ class EventBus {
                 try {
                     listener.callback.call(listener.context, data);
                 } catch (error) {
-                    log.error(`Error in once listener for ${event}:`, error);
+                    // log.error(`Error in once listener for ${event}:`, error);
+                    console.error(`Error in once listener for ${event}:`, error);
                 }
             }
             this.onceEvents.delete(event);
@@ -176,7 +178,10 @@ class EventBus {
             for (const listener of listeners) {
                 promises.push(Promise.resolve()
                     .then(() => listener.callback.call(listener.context, data))
-                    .catch(error => log.error(`Error in async event listener for ${event}:`, error))
+                    .catch(error => {
+                        // log.error(`Error in async event listener for ${event}:`, error);
+                        console.error(`Error in async event listener for ${event}:`, error);
+                    })
                 );
             }
         }
@@ -186,7 +191,10 @@ class EventBus {
             for (const listener of listeners) {
                 promises.push(Promise.resolve()
                     .then(() => listener.callback.call(listener.context, data))
-                    .catch(error => log.error(`Error in async once listener for ${event}:`, error))
+                    .catch(error => {
+                        // log.error(`Error in async once listener for ${event}:`, error);
+                        console.error(`Error in async once listener for ${event}:`, error);
+                    })
                 );
             }
             this.onceEvents.delete(event);
