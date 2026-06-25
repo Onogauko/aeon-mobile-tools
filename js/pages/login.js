@@ -1,23 +1,14 @@
-export function initLoginPage() {
+form.addEventListener("submit", async (e) => {
 
-    console.log("STEP 1");
+    e.preventDefault();
 
-    const form = document.getElementById("login-form");
+    const userId = document.getElementById("user-id").value.trim();
+    const password = document.getElementById("password").value;
 
-    console.log("FORM =", form);
+    console.log("START LOGIN");
 
-    if (!form) {
-        alert("FORM TIDAK DITEMUKAN");
-        return;
-    }
+    const result = await authService.login(userId, password);
 
-    form.addEventListener("submit", function(e){
+    console.log("LOGIN RESULT =", result);
 
-        e.preventDefault();
-
-        alert("LOGIN DIKLIK");
-
-        console.log("SUBMIT");
-    });
-
-}
+});
