@@ -86,6 +86,11 @@ export class Router {
                 this.container.appendChild(pageContent);
             }
             
+            if (routeName === 'splash') {
+                const module = await import('./pages/splash.js');
+                module.initSplash();
+            }
+            
             // Update current route
             this.currentRoute = path;
             
