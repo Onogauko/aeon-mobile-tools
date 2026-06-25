@@ -34,6 +34,7 @@ export class Router {
         this.currentPage = null;
         this.container = document.getElementById('router-view');
         this.initialized = false;
+        this.routes = routes;
     }
 
     /**
